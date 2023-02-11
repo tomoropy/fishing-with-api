@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/labstack/echo/v4"
 )
 
 var db *sql.DB
@@ -26,7 +27,9 @@ func main() {
 		time.Sleep(3 * time.Second)
 	}
 
-	router := gin.Default()
-
-	router.Run()
+	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Hello world")	
+	})
+	e.Logger.Fatal(e.Start(":8080"))
 }
