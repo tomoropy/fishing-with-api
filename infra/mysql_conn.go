@@ -24,6 +24,8 @@ func NewMySQLConnector() *MySQLConnector {
 		}
 		time.Sleep(3 * time.Second)
 	}
+
+
 	return &MySQLConnector{
 		Conn: db,
 	}
