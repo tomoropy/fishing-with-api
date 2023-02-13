@@ -6,7 +6,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 	"github.com/tomoropy/clean-arc-go/adapter"
-	"github.com/tomoropy/clean-arc-go/domain/service"
 	"github.com/tomoropy/clean-arc-go/infra"
 	"github.com/tomoropy/clean-arc-go/usecase"
 )
@@ -15,8 +14,7 @@ func main() {
 
 	mySQLConn := infra.NewMySQLConnector()
 	userRepository := infra.NewUserRepository(mySQLConn.Conn)
-	userService := service.NewUserService(userRepository)
-	userUsecase := usecase.NewUserUsecase(userService)
+	userUsecase := usecase.NewUserUsecase(userRepository)
 	userHandler := adapter.NewUserHandler(userUsecase)
 
 	

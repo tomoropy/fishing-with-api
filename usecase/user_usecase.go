@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/tomoropy/clean-arc-go/domain/model"
-	"github.com/tomoropy/clean-arc-go/domain/service"
+	"github.com/tomoropy/clean-arc-go/domain/repository"
 )
 
 type IUserUsecase interface {
@@ -12,17 +12,17 @@ type IUserUsecase interface {
 	FindUserByID(ctx context.Context, id int) (*model.User, error)
 }
 type userUsecase struct {
-	svc service.IUserService
+	ur repository.IUserRepository
 }
 
-func NewUserUsecase(su service.IUserService) IUserUsecase {
+func NewUserUsecase(ur repository.IUserRepository) IUserUsecase {
 	return &userUsecase{
-		svc: su,
+		ur: ur,
 	}
 }
 
 func (uu *userUsecase) FindAllUser(ctx context.Context) ([]model.User, error) {
-	users, err := uu.svc.FindAllUser(ctx)
+	users, err := uu.ur.SelectAllUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (uu *userUsecase) FindAllUser(ctx context.Context) ([]model.User, error) {
 }
 
 func (uu *userUsecase) FindUserByID(ctx context.Context, id int) (*model.User, error) {
-	user, err := uu.svc.FindUserByID(ctx, id)
+	user, err := uu.ur.SelectUserByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
