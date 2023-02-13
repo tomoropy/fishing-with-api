@@ -12,7 +12,7 @@ type MySQLConnector struct {
 
 func NewMySQLConnector() *MySQLConnector {
 	var err error
-	db, err := sql.Open("mysql", "user:password@tcp(mysql)/myapp")
+	db, err := sql.Open("mysql", "root:password@tcp(mysql)/myapp")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,6 +24,7 @@ func NewMySQLConnector() *MySQLConnector {
 		}
 		time.Sleep(3 * time.Second)
 	}
+
 
 
 	return &MySQLConnector{

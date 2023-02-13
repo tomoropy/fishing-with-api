@@ -10,6 +10,7 @@ import (
 type IUserUsecase interface {
 	FindAllUser(ctx context.Context) ([]model.User, error)
 	FindUserByID(ctx context.Context, id int) (*model.User, error)
+	CreateUser(ctx context.Context, username string, email string, password string, age int) (*model.User, error)
 }
 type userUsecase struct {
 	ur repository.IUserRepository
@@ -35,4 +36,12 @@ func (uu *userUsecase) FindUserByID(ctx context.Context, id int) (*model.User, e
 		return nil, err
 	}
 	return user, nil
+}
+
+func (uu *userUsecase) CreateUser(ctx context.Context, username string, email string, password string, age int) (*model.User, error){
+	createdUser, err := uu.ur.CreateUser(ctx, username, email, password, age)
+	if err != nil {
+		return nil, err
+	}
+	return createdUser, nil
 }

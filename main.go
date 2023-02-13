@@ -23,17 +23,8 @@ func main() {
 		return c.String(http.StatusOK, "Hello world")
 	})
 
-	_, err := mySQLConn.Conn.Exec("CREATE TABLE IF NOT EXISTS user (id INT, username VARCHAR(100), email VARCHAR(20), password VARCHAR(40), age INT);")
-	if err != nil {
-		e.Logger.Fatal(err)
-	}
-
-	_, err = mySQLConn.Conn.Exec("INSERT INTO user (id, username, email, password, age) VALUES ('1', 'tomo', 'ucchi', 'password', 23);")
-	if err != nil {
-		e.Logger.Fatal(err)
-	}
-
 	e.GET("/users", userHandler.FindAllUser())
-	e.GET("/user/id", userHandler.FindUserByID())
+	e.GET("/user/:id", userHandler.FindUserByID())
+	e.POST("/user", userHandler.CreateUser())
 	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -18,7 +18,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: myapp
-      MYSQL_USER: user
+      MYSQL_USER: root
       MYSQL_PASSWORD: password
       TZ: Asia/Tokyo
     ports:
