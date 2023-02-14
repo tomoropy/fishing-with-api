@@ -10,7 +10,9 @@ services:
       - "8080:8080"
     depends_on:
       - db
-    command: ["/app/main"]
+    volumes:
+      - ./:/app
+    tty: true
 
   db:
     container_name: mysql
