@@ -12,6 +12,7 @@ type IUserUsecase interface {
 	FindUserByID(ctx context.Context, id int) (*model.User, error)
 	CreateUser(ctx context.Context, username string, email string, password string, age int) (*model.User, error)
 	UpdateUser(ctx context.Context, id int, username string, email string, password string, age int) (*model.User, error)
+	DeleteUser(ctx context.Context, id int) (bool, error)
 }
 
 type userUsecase struct {
@@ -54,4 +55,12 @@ func (uu *userUsecase) UpdateUser(ctx context.Context, id int, username string, 
 		return nil, err
 	}
 	return updatedUser, nil
+}
+
+func (uu *userUsecase) DeleteUser(ctx context.Context, id int) (bool, error) {
+	ok, err := uu.ur.DeleteUser(ctx, id)
+	if err != nil {
+		return false, err
+	}
+	return ok, nil
 }

@@ -12,5 +12,5 @@ type IUserRepository interface {
 	SelectUserByID(ctx context.Context, id int) (*model.User, error)
 	CreateUser(ctx context.Context, username string, email string, password string, age int) (*model.User, error)
 	UpdateUser(ctx context.Context, id int, username string, email string, password string, age int) (*model.User, error)
-	DeleteUser(ctx context.Context, id int) error
+	DeleteUser(ctx context.Context, id int) (bool, error)
 }

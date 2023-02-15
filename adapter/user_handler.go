@@ -120,6 +120,9 @@ func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		userID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
 
 		updateUser, err := uh.usecase.UpdateUser(ctx, userID, params.Username, params.Email, params.Password, params.Age)
 		if err != nil {
@@ -135,5 +138,27 @@ func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, userRes)
 
+	}
+}
+
+func (uh *userHandler) DeleteUser() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+
+		if c.Request().Method != "DELETE" {
+			return c.JSON(http.StatusBadRequest, "DELETE method only allow")
+		}
+
+		userID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		_, err = uh.usecase.DeleteUser(ctx, userID)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		return c.JSON(http.StatusOK, "succsess!")
 	}
 }

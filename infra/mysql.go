@@ -93,6 +93,11 @@ func (ur *userRepository) UpdateUser(ctx context.Context, id int, username strin
 	return &user, nil
 }
 
-func (ur *userRepository) DeleteUser(ctx context.Context, id int) error {
-	return nil
+func (ur *userRepository) DeleteUser(ctx context.Context, id int) (bool, error) {
+	_, err := ur.DB.Exec("DELETE FROM user WHERE id = ?", id)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
