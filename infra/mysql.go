@@ -56,11 +56,6 @@ func (ur *userRepository) SelectUserByID(ctx context.Context, sutudentID int) (*
 
 func (ur *userRepository) CreateUser(ctx context.Context, username string, email string, password string, age int) (*model.User, error) {
 
-	_, err := ur.DB.Exec("CREATE TABLE IF NOT EXISTS user (id INT NOT NULL AUTO_INCREMENT, username VARCHAR(100) NOT NULL, email VARCHAR(20) NOT NULL, password VARCHAR(40) NOT NULL, age INT, PRIMARY KEY (`id`));")
-	if err != nil {
-		return nil, err
-	}
-
 	result, err := ur.DB.Exec("INSERT INTO user (username, email, password, age) VALUES (?, ?, ?, ?);", username, email, password, age)
 	if err != nil {
 		return nil, err
@@ -81,8 +76,20 @@ func (ur *userRepository) CreateUser(ctx context.Context, username string, email
 	return &user, nil
 }
 
-func (ur *userRepository) UpdateUser(ctx context.Context, id int) (*model.User, error) {
+func (ur *userRepository) UpdateUser(ctx context.Context, id int, username string, email string, password string, age int) (*model.User, error) {
+
+	_, err := ur.DB.Exec("UPDATE user SET username = ?, email = ?, password = ?, age = ? WHERE id = ?", username, email, password, age, id)
+	if err != nil {
+		return nil, err
+	}
+
 	var user model.User
+	user.ID = id
+	user.Email = email
+	user.Username = username
+	user.Password = password
+	user.Age = age
+
 	return &user, nil
 }
 
