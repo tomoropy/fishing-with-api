@@ -11,15 +11,19 @@ COPY . .
 
 RUN go build -o main /app/main.go
 
+RUN go get -u github.com/cosmtrek/air && go build -o /go/bin/air github.com/cosmtrek/air
+
+CMD ["air", "-c", ".air.toml"]
+
 ####################### Run stage #######################
-FROM alpine:3.13
+# FROM alpine:3.13
 
-WORKDIR /app
+# WORKDIR /app
 
-COPY --from=builder /app/main .
+# COPY --from=builder /app/main .
 
-COPY . .
+# COPY . .
 
-EXPOSE 8080
+# EXPOSE 8080
 
-CMD [ "/app/main" ]
+# CMD [ "/app/main" ]

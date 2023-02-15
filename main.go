@@ -17,14 +17,14 @@ func main() {
 	userUsecase := usecase.NewUserUsecase(userRepository)
 	userHandler := adapter.NewUserHandler(userUsecase)
 
-	
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello world")
+		return c.String(http.StatusOK, "Welcome my app!!")
 	})
 
 	e.GET("/users", userHandler.FindAllUser())
 	e.GET("/user/:id", userHandler.FindUserByID())
 	e.POST("/user", userHandler.CreateUser())
+	e.POST("/user/:id", userHandler.UpdateUser())
 	e.Logger.Fatal(e.Start(":8080"))
 }
