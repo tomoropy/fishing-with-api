@@ -7,6 +7,7 @@ import (
 	"github.com/tomoropy/clean-arc-go/domain/repository"
 )
 
+// user usecase
 type IUserUsecase interface {
 	FindAllUser(ctx context.Context) ([]model.User, error)
 	FindUserByID(ctx context.Context, id int) (*model.User, error)
@@ -64,3 +65,21 @@ func (uu *userUsecase) DeleteUser(ctx context.Context, id int) (bool, error) {
 	}
 	return ok, nil
 }
+
+
+// invitations usecase
+
+type IinvUsecase interface {
+	
+}
+
+type invUsecase struct {
+	repo repository.IInvRepository
+}
+
+func newInvUsecase (ir repository.IInvRepository) invUsecase {
+	return &invUsecase{
+		ir : ir,
+	}
+} 
+func (uu *invUsecase)

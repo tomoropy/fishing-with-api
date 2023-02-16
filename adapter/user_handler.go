@@ -162,3 +162,40 @@ func (uh *userHandler) DeleteUser() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, "succsess!")
 	}
 }
+
+// Invitation Handler
+type invHandler struct {
+	us usecase.IinvUsecase
+}
+
+func NewInvHandler(iu usecase.IinvUsecase) *invHandler {
+	return &invHandler{
+		us: iu,
+	}
+}
+
+func (ih *invHandler) FindInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "find Inv WIP...")
+	}
+}
+func (ih *invHandler) AllInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "all inv WIP...")
+	}
+}
+func (ih *invHandler) UserInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "user inv WIP...")
+	}
+}
+func (ih *invHandler) UpdateInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "delete inv WIP...")
+	}
+}
+func (ih *invHandler) DeleteInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "delete inv WIP...")
+	}
+}

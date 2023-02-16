@@ -6,14 +6,35 @@ import (
 
 	"github.com/tomoropy/clean-arc-go/domain/model"
 	"github.com/tomoropy/clean-arc-go/domain/repository"
+	"gorm.io/gorm"
 )
 
 type userRepository struct {
-	DB *sql.DB
+	DB *gorm.DB
 }
 
-func NewUserRepository(db *sql.DB) repository.IUserRepository {
+type invRepository struct {
+	DB *gorm.DB
+}
+
+type photoRepository struct {
+	DB *gorm.DB
+}
+
+func NewUserRepository(db *gorm.DB) repository.IUserRepository {
 	return &userRepository{
+		DB: db,
+	}
+}
+
+func NewInvRepostitory(db *gorm.DB) repository.IInvRepository {
+	return &invRepository{
+		DB: db,
+	}
+}
+
+func NewPhotoRepory(db *gorm.DB) repository.IPhotoRepository {
+	return &photoRepository{
 		DB: db,
 	}
 }
