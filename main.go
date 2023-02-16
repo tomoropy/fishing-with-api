@@ -24,18 +24,18 @@ func main() {
 
 	// user
 	e.GET("/users", userHandler.FindAllUser())
-	e.GET("/user/:id", userHandler.FindUserByID())
-	e.POST("/user", userHandler.CreateUser())
-	e.POST("/user/:id", userHandler.UpdateUser())
-	e.DELETE("/user/:id", userHandler.DeleteUser())
+	// e.GET("/user/:id", userHandler.FindUserByID())
+	// e.POST("/user", userHandler.CreateUser())
+	// e.POST("/user/:id", userHandler.UpdateUser())
+	// e.DELETE("/user/:id", userHandler.DeleteUser())
 
-	// invitation
-	e.GET("invitation/:id", invHandler.FindInv())
-	e.GET("invitations", invHandler.AllInv())
-	e.GET("user/:id/invitations", invHandler.UserInv())
-	e.POST("user/:id/invitation", invHandler.CreateInv())
-	e.PUT("user/:id/invitation", invHandler.UpdateInv())
-	e.DELETE("user/:id/invitation", invHandler.DeleteInv())
+	// // invitation
+	// e.GET("invitation/:id", invHandler.FindInv())
+	// e.GET("invitations", invHandler.AllInv())
+	// e.GET("user/:id/invitations", invHandler.UserInv())
+	// e.POST("user/:id/invitation", invHandler.CreateInv())
+	// e.PUT("user/:id/invitation", invHandler.UpdateInv())
+	// e.DELETE("user/:id/invitation", invHandler.DeleteInv())
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

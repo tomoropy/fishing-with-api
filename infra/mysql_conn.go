@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"database/sql"
+
+	"github.com/tomoropy/clean-arc-go/domain/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -14,7 +16,7 @@ type MySQLConnector struct {
 }
 
 func NewMySQLConnector() *MySQLConnector {
-	dsn := "root:passwrod@tcp(mysql)/myapp"
+	dsn := "root:password@tcp(mysql)/myapp?charset=utf8mb4&parseTime=True&loc=Local"
 	sqlDB, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
@@ -40,6 +42,9 @@ func NewMySQLConnector() *MySQLConnector {
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
+
+	// Userテーブルを作成
+	db.AutoMigrate(&model.User{})
 
 	return &MySQLConnector{
 		Conn: db,
