@@ -24,10 +24,10 @@ func main() {
 
 	// user
 	e.GET("/users", userHandler.FindAllUser())
-	// e.GET("/user/:id", userHandler.FindUserByID())
-	// e.POST("/user", userHandler.CreateUser())
-	// e.POST("/user/:id", userHandler.UpdateUser())
-	// e.DELETE("/user/:id", userHandler.DeleteUser())
+	e.GET("/user/:id", userHandler.FindUserByID())
+	e.POST("/user", userHandler.CreateUser())
+	e.PUT("/user/:id", userHandler.UpdateUser())
+	e.DELETE("/user/:id", userHandler.DeleteUser())
 
 	// // invitation
 	// e.GET("invitation/:id", invHandler.FindInv())

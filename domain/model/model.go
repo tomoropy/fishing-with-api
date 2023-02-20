@@ -10,7 +10,7 @@ type User struct {
 	Email          string `json:"email"`
 	HashedPassword string `json:"password"`
 	Text           string `json:"text"`
-	Image          string `json:"image"`
+	Avater         string `json:"avater"`
 	Header         string `json:"header"`
 }
 
