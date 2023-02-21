@@ -2,7 +2,6 @@ package infra
 
 import (
 	"context"
-	// "database/sql"
 
 	"github.com/tomoropy/fishing-with-api/domain/model"
 	"github.com/tomoropy/fishing-with-api/domain/repository"
@@ -13,7 +12,7 @@ type userRepository struct {
 	DB *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) repository.IUserRepository {
+func NewUserRepository(db *gorm.DB) repository.UserRepository {
 	return &userRepository{
 		DB: db,
 	}
@@ -43,7 +42,7 @@ func (ur *userRepository) SelectUserByID(ctx context.Context, id int) (*model.Us
 	return &user, nil
 }
 
-func (ur *userRepository) CreateUser(
+func (ur *userRepository) InsertUser(
 	ctx context.Context,
 	username string,
 	email string,
@@ -117,16 +116,28 @@ func (ur *userRepository) DeleteUser(ctx context.Context, id int) error {
 	return nil
 }
 
-// // invitaions
-// type invRepository struct {
-// 	DB *gorm.DB
-// }
+// invitaions
+type invRepository struct {
+	db *gorm.DB
+}
 
-// func NewInvRepostitory(db *gorm.DB) repository.IInvRepository {
-// 	return &invRepository{
-// 		DB: db,
-// 	}
-// }
+func NewInvRepostitory(db *gorm.DB) repository.InvRepository {
+	return &invRepository{
+		db: db,
+	}
+}
+
+func (r invRepository) SelectAllInvitation(ctx context.Context) ([]model.Invitation, error) {
+	var inv []model.Invitation
+
+	result := r.db.Find(&inv)
+	err := result.Error
+
+	if err != nil {
+		return nil, err
+	}
+	return inv, nil
+}
 
 // // photo
 // type photoRepository struct {

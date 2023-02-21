@@ -7,8 +7,8 @@ import (
 	"github.com/tomoropy/fishing-with-api/domain/repository"
 )
 
-// user usecase
-type IUserUsecase interface {
+type Usecase interface {
+	// user
 	FindAllUser(ctx context.Context) ([]model.User, error)
 	FindUserByID(ctx context.Context, id int) (*model.User, error)
 	CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error)
@@ -16,50 +16,50 @@ type IUserUsecase interface {
 	DeleteUser(ctx context.Context, id int) error
 }
 
-type userUsecase struct {
-	ur repository.IUserRepository
+type usecase struct {
+	ur repository.UserRepository
 }
 
-func NewUserUsecase(ur repository.IUserRepository) IUserUsecase {
-	return &userUsecase{
+func NewUsecase(ur repository.UserRepository) Usecase {
+	return &usecase{
 		ur: ur,
 	}
 }
 
-func (uu *userUsecase) FindAllUser(ctx context.Context) ([]model.User, error) {
-	users, err := uu.ur.SelectAllUser(ctx)
+func (u *usecase) FindAllUser(ctx context.Context) ([]model.User, error) {
+	users, err := u.ur.SelectAllUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return users, nil
 }
 
-func (uu *userUsecase) FindUserByID(ctx context.Context, id int) (*model.User, error) {
-	user, err := uu.ur.SelectUserByID(ctx, id)
+func (u *usecase) FindUserByID(ctx context.Context, id int) (*model.User, error) {
+	user, err := u.ur.SelectUserByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (uu *userUsecase) CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
-	createdUser, err := uu.ur.CreateUser(ctx, username, email, password, text, avater, header)
+func (u *usecase) CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
+	createdUser, err := u.ur.InsertUser(ctx, username, email, password, text, avater, header)
 	if err != nil {
 		return nil, err
 	}
 	return createdUser, nil
 }
 
-func (uu *userUsecase) UpdateUser(ctx context.Context, id int, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
-	updatedUser, err := uu.ur.UpdateUser(ctx, id, username, email, password, text, avater, header)
+func (u *usecase) UpdateUser(ctx context.Context, id int, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
+	updatedUser, err := u.ur.UpdateUser(ctx, id, username, email, password, text, avater, header)
 	if err != nil {
 		return nil, err
 	}
 	return updatedUser, nil
 }
 
-func (uu *userUsecase) DeleteUser(ctx context.Context, id int) error {
-	err := uu.ur.DeleteUser(ctx, id)
+func (u *usecase) DeleteUser(ctx context.Context, id int) error {
+	err := u.ur.DeleteUser(ctx, id)
 	if err != nil {
 		return err
 	}

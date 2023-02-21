@@ -8,13 +8,13 @@ import (
 	"github.com/tomoropy/fishing-with-api/usecase"
 )
 
-type userHandler struct {
-	us usecase.IUserUsecase
+type handler struct {
+	uc usecase.Usecase
 }
 
-func NewUserHandler(uu usecase.IUserUsecase) *userHandler {
-	return &userHandler{
-		us: uu,
+func NewHandler(uc usecase.Usecase) *handler {
+	return &handler{
+		uc: uc,
 	}
 }
 
@@ -27,10 +27,10 @@ type userResponse struct {
 	Header   string `json:"header"`
 }
 
-func (uh *userHandler) FindAllUser() echo.HandlerFunc {
+func (h *handler) FindAllUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		users, err := uh.us.FindAllUser(ctx)
+		users, err := h.uc.FindAllUser(ctx)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
@@ -51,14 +51,14 @@ func (uh *userHandler) FindAllUser() echo.HandlerFunc {
 	}
 }
 
-func (uh *userHandler) FindUserByID() echo.HandlerFunc {
+func (h *handler) FindUserByID() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		userID, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		user, err := uh.us.FindUserByID(ctx, userID)
+		user, err := h.uc.FindUserByID(ctx, userID)
 
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
@@ -86,7 +86,7 @@ type userPostRequest struct {
 	Header   string `json:"header"`
 }
 
-func (uh *userHandler) CreateUser() echo.HandlerFunc {
+func (h *handler) CreateUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 
@@ -99,7 +99,7 @@ func (uh *userHandler) CreateUser() echo.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		createdUser, err := uh.us.CreateUser(
+		createdUser, err := h.uc.CreateUser(
 			ctx,
 			params.Username,
 			params.Email,
@@ -125,7 +125,7 @@ func (uh *userHandler) CreateUser() echo.HandlerFunc {
 	}
 }
 
-func (uh *userHandler) UpdateUser() echo.HandlerFunc {
+func (h *handler) UpdateUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 
@@ -142,7 +142,7 @@ func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		updateUser, err := uh.us.UpdateUser(
+		updateUser, err := h.uc.UpdateUser(
 			ctx, userID,
 			params.Username,
 			params.Email,
@@ -168,7 +168,7 @@ func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 	}
 }
 
-func (uh *userHandler) DeleteUser() echo.HandlerFunc {
+func (h *handler) DeleteUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 
@@ -181,7 +181,7 @@ func (uh *userHandler) DeleteUser() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		err = uh.us.DeleteUser(ctx, userID)
+		err = h.uc.DeleteUser(ctx, userID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}

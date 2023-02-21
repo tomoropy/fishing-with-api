@@ -14,8 +14,8 @@ func main() {
 
 	mySQLConn := infra.NewMySQLConnector()
 	userRepository := infra.NewUserRepository(mySQLConn.Conn)
-	userUsecase := usecase.NewUserUsecase(userRepository)
-	userHandler := adapter.NewUserHandler(userUsecase)
+	usecase := usecase.NewUsecase(userRepository)
+	handler := adapter.NewHandler(usecase)
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
@@ -23,11 +23,11 @@ func main() {
 	})
 
 	// user
-	e.GET("/users", userHandler.FindAllUser())
-	e.GET("/user/:id", userHandler.FindUserByID())
-	e.POST("/user", userHandler.CreateUser())
-	e.PUT("/user/:id", userHandler.UpdateUser())
-	e.DELETE("/user/:id", userHandler.DeleteUser())
+	e.GET("/users", handler.FindAllUser())
+	e.GET("/user/:id", handler.FindUserByID())
+	e.POST("/user", handler.CreateUser())
+	e.PUT("/user/:id", handler.UpdateUser())
+	e.DELETE("/user/:id", handler.DeleteUser())
 
 	// // invitation
 	// e.GET("invitation/:id", invHandler.FindInv())
