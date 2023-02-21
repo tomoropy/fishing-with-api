@@ -41,6 +41,7 @@ func NewMySQLConnector() *MySQLConnector {
 
 	// Userテーブルを作成
 	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.Invitation{})
 
 	return &MySQLConnector{
 		Conn: db,

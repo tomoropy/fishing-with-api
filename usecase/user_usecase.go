@@ -7,59 +7,69 @@ import (
 	"github.com/tomoropy/fishing-with-api/domain/repository"
 )
 
-// user usecase
-type IUserUsecase interface {
+type Usecase interface {
+	// user
 	FindAllUser(ctx context.Context) ([]model.User, error)
 	FindUserByID(ctx context.Context, id int) (*model.User, error)
 	CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error)
 	UpdateUser(ctx context.Context, id int, username string, email string, password string, text string, avater string, header string) (*model.User, error)
 	DeleteUser(ctx context.Context, id int) error
+
+	// invtation
+	FindInv(ctx context.Context, id int) (*model.Invitation, error)
+	FindAllInv(ctx context.Context) ([]model.Invitation, error)
+	CreateInv(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error)
+	FindInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error)
+	UpdateInv(ctx context.Context, id int, comment string, place string) (*model.Invitation, error)
+	DeleteInv(ctx context.Context, id int) error
 }
 
-type userUsecase struct {
-	ur repository.IUserRepository
+type usecase struct {
+	ur repository.UserRepository
+	ir repository.InvRepository
 }
 
-func NewUserUsecase(ur repository.IUserRepository) IUserUsecase {
-	return &userUsecase{
+func NewUsecase(ur repository.UserRepository, ir repository.InvRepository) Usecase {
+	return &usecase{
 		ur: ur,
+		ir: ir,
 	}
 }
 
-func (uu *userUsecase) FindAllUser(ctx context.Context) ([]model.User, error) {
-	users, err := uu.ur.SelectAllUser(ctx)
+func (u *usecase) FindAllUser(ctx context.Context) ([]model.User, error) {
+	users, err := u.ur.SelectAllUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return users, nil
 }
 
-func (uu *userUsecase) FindUserByID(ctx context.Context, id int) (*model.User, error) {
-	user, err := uu.ur.SelectUserByID(ctx, id)
+func (u *usecase) FindUserByID(ctx context.Context, id int) (*model.User, error) {
+	user, err := u.ur.SelectUserByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (uu *userUsecase) CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
-	createdUser, err := uu.ur.CreateUser(ctx, username, email, password, text, avater, header)
+func (u *usecase) CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
+	createdUser, err := u.ur.InsertUser(ctx, username, email, password, text, avater, header)
 	if err != nil {
 		return nil, err
 	}
 	return createdUser, nil
 }
 
-func (uu *userUsecase) UpdateUser(ctx context.Context, id int, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
-	updatedUser, err := uu.ur.UpdateUser(ctx, id, username, email, password, text, avater, header)
+func (u *usecase) UpdateUser(ctx context.Context, id int, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
+	updatedUser, err := u.ur.UpdateUser(ctx, id, username, email, password, text, avater, header)
 	if err != nil {
 		return nil, err
 	}
 	return updatedUser, nil
 }
 
-func (uu *userUsecase) DeleteUser(ctx context.Context, id int) error {
-	err := uu.ur.DeleteUser(ctx, id)
+func (u *usecase) DeleteUser(ctx context.Context, id int) error {
+	err := u.ur.DeleteUser(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -67,6 +77,53 @@ func (uu *userUsecase) DeleteUser(ctx context.Context, id int) error {
 }
 
 // invitations usecase
+func (u *usecase) FindInv(ctx context.Context, id int) (*model.Invitation, error) {
+	inv, err := u.ir.SelectInv(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return inv, nil
+}
+
+func (u *usecase) FindAllInv(ctx context.Context) ([]model.Invitation, error) {
+	invs, err := u.ir.SelectAllInvitation(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return invs, nil
+}
+
+func (u *usecase) CreateInv(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error) {
+	inv, err := u.ir.InsertInvitation(ctx, userID, comment, place)
+	if err != nil {
+		return nil, err
+	}
+	return inv, nil
+}
+
+func (u *usecase) FindInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error) {
+	invs, err := u.ir.SelectInvitationByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return invs, nil
+}
+
+func (u *usecase) UpdateInv(ctx context.Context, id int, comment string, place string) (*model.Invitation, error) {
+	inv, err := u.ir.UpdateInvitation(ctx, id, comment, place)
+	if err != nil {
+		return nil, err
+	}
+	return inv, nil
+}
+
+func (u *usecase) DeleteInv(ctx context.Context, id int) error {
+	err := u.ir.DeleteInvitation(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 // type IinvUsecase interface {
 // 	FindInv(ctx context.Context, id int) *model.Invitation

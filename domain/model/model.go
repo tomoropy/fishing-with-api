@@ -14,14 +14,12 @@ type User struct {
 	Header         string `json:"header"`
 }
 
-// type Invitation struct {
-// 	gorm.Model
-// 	UserID    int    `json:"user_id"`
-// 	Commnet   string `json:"comment"`
-// 	Place     string `json:"place"`
-// 	StartTime string `json:"start_time"`
-// 	EndTime   string `json:"end_time"`
-// }
+type Invitation struct {
+	gorm.Model
+	UserID  int    `json:"user_id"`
+	Comment string `json:"comment"`
+	Place   string `json:"place"`
+}
 
 // type Photo struct {
 // 	gorm.Model

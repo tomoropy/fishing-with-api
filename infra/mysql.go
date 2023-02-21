@@ -2,27 +2,27 @@ package infra
 
 import (
 	"context"
-	// "database/sql"
 
 	"github.com/tomoropy/fishing-with-api/domain/model"
 	"github.com/tomoropy/fishing-with-api/domain/repository"
 	"gorm.io/gorm"
 )
 
+// user repository
 type userRepository struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) repository.IUserRepository {
+func NewUserRepository(db *gorm.DB) repository.UserRepository {
 	return &userRepository{
-		DB: db,
+		db: db,
 	}
 }
 
 func (ur *userRepository) SelectAllUser(ctx context.Context) ([]model.User, error) {
 	var users []model.User
 
-	result := ur.DB.Find(&users)
+	result := ur.db.Find(&users)
 	err := result.Error
 
 	if err != nil {
@@ -34,7 +34,7 @@ func (ur *userRepository) SelectAllUser(ctx context.Context) ([]model.User, erro
 func (ur *userRepository) SelectUserByID(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
 
-	result := ur.DB.First(&user, "id = ?", id)
+	result := ur.db.First(&user, "id = ?", id)
 	err := result.Error
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (ur *userRepository) SelectUserByID(ctx context.Context, id int) (*model.Us
 	return &user, nil
 }
 
-func (ur *userRepository) CreateUser(
+func (ur *userRepository) InsertUser(
 	ctx context.Context,
 	username string,
 	email string,
@@ -61,7 +61,7 @@ func (ur *userRepository) CreateUser(
 		Header:         header,
 	}
 
-	result := ur.DB.Create(&user)
+	result := ur.db.Create(&user)
 	err := result.Error
 	if err != nil {
 		return nil, err
@@ -82,9 +82,8 @@ func (ur *userRepository) UpdateUser(
 ) (*model.User, error) {
 	var user model.User
 
-	result := ur.DB.First(&user, "id = ?", id)
+	result := ur.db.First(&user, "id = ?", id)
 	err := result.Error
-
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +95,7 @@ func (ur *userRepository) UpdateUser(
 	user.Avater = avater
 	user.Header = header
 
-	result = ur.DB.Save(&user)
+	result = ur.db.Save(&user)
 	err = result.Error
 	if err != nil {
 		return nil, err
@@ -108,7 +107,7 @@ func (ur *userRepository) UpdateUser(
 func (ur *userRepository) DeleteUser(ctx context.Context, id int) error {
 	var user model.User
 
-	result := ur.DB.Where("id = ?", id).Delete(&user)
+	result := ur.db.Where("id = ?", id).Delete(&user)
 	err := result.Error
 	if err != nil {
 		return err
@@ -117,16 +116,99 @@ func (ur *userRepository) DeleteUser(ctx context.Context, id int) error {
 	return nil
 }
 
-// // invitaions
-// type invRepository struct {
-// 	DB *gorm.DB
-// }
+// invitaion repository
+type invRepository struct {
+	db *gorm.DB
+}
 
-// func NewInvRepostitory(db *gorm.DB) repository.IInvRepository {
-// 	return &invRepository{
-// 		DB: db,
-// 	}
-// }
+func NewInvRepostitory(db *gorm.DB) repository.InvRepository {
+	return &invRepository{
+		db: db,
+	}
+}
+
+func (ir invRepository) SelectInv(ctx context.Context, id int) (*model.Invitation, error) {
+	var inv model.Invitation
+
+	result := ir.db.First(&inv, "id = ?", id)
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+	return &inv, nil
+}
+
+func (ir invRepository) SelectAllInvitation(ctx context.Context) ([]model.Invitation, error) {
+	var inv []model.Invitation
+
+	result := ir.db.Find(&inv)
+	err := result.Error
+
+	if err != nil {
+		return nil, err
+	}
+	return inv, nil
+}
+
+func (ir invRepository) InsertInvitation(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error) {
+	inv := model.Invitation{
+		UserID:  userID,
+		Comment: comment,
+		Place:   place,
+	}
+
+	result := ir.db.Create(&inv)
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &inv, nil
+}
+
+func (ir invRepository) SelectInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error) {
+	var invs []model.Invitation
+
+	result := ir.db.Where("user_id = ?", userID).Find(&invs)
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+	return invs, nil
+}
+
+func (ir invRepository) UpdateInvitation(ctx context.Context, id int, comment string, place string) (*model.Invitation, error) {
+	var inv model.Invitation
+
+	result := ir.db.First(&inv, "id = ?", id)
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+
+	inv.Comment = comment
+	inv.Place = place
+
+	result = ir.db.Save(&inv)
+	err = result.Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &inv, nil
+}
+
+func (ir invRepository) DeleteInvitation(ctx context.Context, id int) error {
+	var inv model.Invitation
+
+	result := ir.db.Where("id = ?", id).Delete(&inv)
+	err := result.Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // // photo
 // type photoRepository struct {
