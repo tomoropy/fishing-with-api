@@ -2,17 +2,18 @@ package infra
 
 import (
 	"context"
-	"database/sql"
+	// "database/sql"
 
-	"github.com/tomoropy/clean-arc-go/domain/model"
-	"github.com/tomoropy/clean-arc-go/domain/repository"
+	"github.com/tomoropy/fishing-with-api/domain/model"
+	"github.com/tomoropy/fishing-with-api/domain/repository"
+	"gorm.io/gorm"
 )
 
 type userRepository struct {
-	DB *sql.DB
+	DB *gorm.DB
 }
 
-func NewUserRepository(db *sql.DB) repository.IUserRepository {
+func NewUserRepository(db *gorm.DB) repository.IUserRepository {
 	return &userRepository{
 		DB: db,
 	}
@@ -21,83 +22,119 @@ func NewUserRepository(db *sql.DB) repository.IUserRepository {
 func (ur *userRepository) SelectAllUser(ctx context.Context) ([]model.User, error) {
 	var users []model.User
 
-	rows, err := ur.DB.Query("SELECT * FROM user")
+	result := ur.DB.Find(&users)
+	err := result.Error
+
 	if err != nil {
 		return nil, err
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var user model.User
-
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Age); err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-		if err := rows.Err(); err != nil {
-			return nil, err
-		}
 	}
 	return users, nil
 }
 
-func (ur *userRepository) SelectUserByID(ctx context.Context, sutudentID int) (*model.User, error) {
+func (ur *userRepository) SelectUserByID(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
 
-	row := ur.DB.QueryRow("SELECT * FROM user WHERE id = ?", sutudentID)
-	if err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Age); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, err
-		}
+	result := ur.DB.First(&user, "id = ?", id)
+	err := result.Error
+	if err != nil {
+		return nil, err
 	}
+
 	return &user, nil
 }
 
-func (ur *userRepository) CreateUser(ctx context.Context, username string, email string, password string, age int) (*model.User, error) {
+func (ur *userRepository) CreateUser(
+	ctx context.Context,
+	username string,
+	email string,
+	password string,
+	text string,
+	avater string,
+	header string,
+) (*model.User, error) {
+	user := model.User{
+		Username:       username,
+		Email:          email,
+		HashedPassword: password,
+		Text:           text,
+		Avater:         avater,
+		Header:         header,
+	}
 
-	result, err := ur.DB.Exec("INSERT INTO user (username, email, password, age) VALUES (?, ?, ?, ?);", username, email, password, age)
+	result := ur.DB.Create(&user)
+	err := result.Error
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
+	return &user, nil
+}
 
+func (ur *userRepository) UpdateUser(
+	ctx context.Context,
+	id int,
+	username string,
+	email string,
+	password string,
+	text string,
+	avater string,
+	header string,
+) (*model.User, error) {
 	var user model.User
-	user.ID = int(id)
-	user.Email = email
+
+	result := ur.DB.First(&user, "id = ?", id)
+	err := result.Error
+
+	if err != nil {
+		return nil, err
+	}
+
 	user.Username = username
-	user.Password = password
-	user.Age = age
+	user.Email = email
+	user.HashedPassword = password
+	user.Text = text
+	user.Avater = avater
+	user.Header = header
 
-	return &user, nil
-}
-
-func (ur *userRepository) UpdateUser(ctx context.Context, id int, username string, email string, password string, age int) (*model.User, error) {
-
-	_, err := ur.DB.Exec("UPDATE user SET username = ?, email = ?, password = ?, age = ? WHERE id = ?", username, email, password, age, id)
+	result = ur.DB.Save(&user)
+	err = result.Error
 	if err != nil {
 		return nil, err
 	}
 
-	var user model.User
-	user.ID = id
-	user.Email = email
-	user.Username = username
-	user.Password = password
-	user.Age = age
-
 	return &user, nil
 }
 
-func (ur *userRepository) DeleteUser(ctx context.Context, id int) (bool, error) {
-	_, err := ur.DB.Exec("DELETE FROM user WHERE id = ?", id)
+func (ur *userRepository) DeleteUser(ctx context.Context, id int) error {
+	var user model.User
+
+	result := ur.DB.Where("id = ?", id).Delete(&user)
+	err := result.Error
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
+
+// // invitaions
+// type invRepository struct {
+// 	DB *gorm.DB
+// }
+
+// func NewInvRepostitory(db *gorm.DB) repository.IInvRepository {
+// 	return &invRepository{
+// 		DB: db,
+// 	}
+// }
+
+// // photo
+// type photoRepository struct {
+// 	DB *gorm.DB
+// }
+
+// func NewPhotoRepory(db *gorm.DB) repository.IPhotoRepository {
+// 	return &photoRepository{
+// 		DB: db,
+// 	}
+// }
