@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/tomoropy/clean-arc-go/domain/model"
+	"github.com/tomoropy/fishing-with-api/domain/model"
 )
 
 // I（interface） UserRepository

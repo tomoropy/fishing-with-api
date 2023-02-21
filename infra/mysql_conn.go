@@ -6,7 +6,7 @@ import (
 
 	"database/sql"
 
-	"github.com/tomoropy/clean-arc-go/domain/model"
+	"github.com/tomoropy/fishing-with-api/domain/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

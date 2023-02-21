@@ -1,4 +1,4 @@
-module github.com/tomoropy/clean-arc-go
+module github.com/tomoropy/fishing-with-api
 
 go 1.19
 

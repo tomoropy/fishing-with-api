@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/tomoropy/clean-arc-go/usecase"
+	"github.com/tomoropy/fishing-with-api/usecase"
 )
 
 type userHandler struct {

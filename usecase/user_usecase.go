@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 
-	"github.com/tomoropy/clean-arc-go/domain/model"
-	"github.com/tomoropy/clean-arc-go/domain/repository"
+	"github.com/tomoropy/fishing-with-api/domain/model"
+	"github.com/tomoropy/fishing-with-api/domain/repository"
 )
 
 // user usecase

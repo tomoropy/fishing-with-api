@@ -5,9 +5,9 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
-	"github.com/tomoropy/clean-arc-go/adapter"
-	"github.com/tomoropy/clean-arc-go/infra"
-	"github.com/tomoropy/clean-arc-go/usecase"
+	"github.com/tomoropy/fishing-with-api/adapter"
+	"github.com/tomoropy/fishing-with-api/infra"
+	"github.com/tomoropy/fishing-with-api/usecase"
 )
 
 func main() {
