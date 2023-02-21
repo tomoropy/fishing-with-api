@@ -84,7 +84,6 @@ func (ur *userRepository) UpdateUser(
 
 	result := ur.db.First(&user, "id = ?", id)
 	err := result.Error
-
 	if err != nil {
 		return nil, err
 	}
@@ -128,10 +127,10 @@ func NewInvRepostitory(db *gorm.DB) repository.InvRepository {
 	}
 }
 
-func (r invRepository) SelectAllInvitation(ctx context.Context) ([]model.Invitation, error) {
+func (ir invRepository) SelectAllInvitation(ctx context.Context) ([]model.Invitation, error) {
 	var inv []model.Invitation
 
-	result := r.db.Find(&inv)
+	result := ir.db.Find(&inv)
 	err := result.Error
 
 	if err != nil {
@@ -140,14 +139,14 @@ func (r invRepository) SelectAllInvitation(ctx context.Context) ([]model.Invitat
 	return inv, nil
 }
 
-func (r invRepository) InsertInvitation(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error) {
+func (ir invRepository) InsertInvitation(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error) {
 	inv := model.Invitation{
 		UserID:  userID,
 		Comment: comment,
 		Place:   place,
 	}
 
-	result := r.db.Create(&inv)
+	result := ir.db.Create(&inv)
 	err := result.Error
 	if err != nil {
 		return nil, err
@@ -156,15 +155,36 @@ func (r invRepository) InsertInvitation(ctx context.Context, userID int, comment
 	return &inv, nil
 }
 
-func (r invRepository) SelectInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error) {
+func (ir invRepository) SelectInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error) {
 	var invs []model.Invitation
 
-	result := r.db.Where("user_id = ?", userID).Find(&invs)
+	result := ir.db.Where("user_id = ?", userID).Find(&invs)
 	err := result.Error
 	if err != nil {
 		return nil, err
 	}
 	return invs, nil
+}
+
+func (ir invRepository) UpdateInvitation(ctx context.Context, id int, comment string, place string) (*model.Invitation, error) {
+	var inv model.Invitation
+
+	result := ir.db.First(&inv, "id = ?", id)
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+
+	inv.Comment = comment
+	inv.Place = place
+
+	result = ir.db.Save(&inv)
+	err = result.Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &inv, nil
 }
 
 // // photo

@@ -31,11 +31,11 @@ func main() {
 	e.DELETE("/user/:id", handler.DeleteUser())
 
 	// invitation
-	// e.GET("invitation/:id", invHandler.FindInv())
+	// e.GET("invitation/:id", handler.FindInv())
 	e.GET("invitations", handler.FindAllInv())
 	e.GET("user/:id/invitations", handler.UserInv())
 	e.POST("user/:id/invitation", handler.CreateInv())
-	// e.PUT("user/:id/invitation", invHandler.UpdateInv())
+	e.PUT("invitation/:id", handler.UpdateInv())
 	// e.DELETE("user/:id/invitation", invHandler.DeleteInv())
 
 	e.Logger.Fatal(e.Start(":8080"))

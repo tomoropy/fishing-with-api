@@ -291,6 +291,40 @@ func (h *handler) UserInv() echo.HandlerFunc {
 	}
 }
 
+func (h *handler) UpdateInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+
+		if c.Request().Method != "PUT" {
+			return c.JSON(http.StatusBadRequest, "PUT method only allow")
+		}
+
+		params := &invPostReq{}
+		if err := c.Bind(params); err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		updatedInv, err := h.uc.UpdateInv(ctx, id, params.Comment, params.Place)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		var invRes invRes
+
+		invRes.ID = int(updatedInv.ID)
+		invRes.UserID = updatedInv.UserID
+		invRes.Comment = updatedInv.Comment
+		invRes.Place = updatedInv.Place
+
+		return c.JSON(http.StatusOK, invRes)
+
+	}
+}
+
 // Invitation Handler
 // type invHandler struct {
 // 	us usecase.IinvUsecase
