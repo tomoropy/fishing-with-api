@@ -10,19 +10,19 @@ import (
 
 // user repository
 type userRepository struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
 func NewUserRepository(db *gorm.DB) repository.UserRepository {
 	return &userRepository{
-		DB: db,
+		db: db,
 	}
 }
 
 func (ur *userRepository) SelectAllUser(ctx context.Context) ([]model.User, error) {
 	var users []model.User
 
-	result := ur.DB.Find(&users)
+	result := ur.db.Find(&users)
 	err := result.Error
 
 	if err != nil {
@@ -34,7 +34,7 @@ func (ur *userRepository) SelectAllUser(ctx context.Context) ([]model.User, erro
 func (ur *userRepository) SelectUserByID(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
 
-	result := ur.DB.First(&user, "id = ?", id)
+	result := ur.db.First(&user, "id = ?", id)
 	err := result.Error
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (ur *userRepository) InsertUser(
 		Header:         header,
 	}
 
-	result := ur.DB.Create(&user)
+	result := ur.db.Create(&user)
 	err := result.Error
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (ur *userRepository) UpdateUser(
 ) (*model.User, error) {
 	var user model.User
 
-	result := ur.DB.First(&user, "id = ?", id)
+	result := ur.db.First(&user, "id = ?", id)
 	err := result.Error
 
 	if err != nil {
@@ -96,7 +96,7 @@ func (ur *userRepository) UpdateUser(
 	user.Avater = avater
 	user.Header = header
 
-	result = ur.DB.Save(&user)
+	result = ur.db.Save(&user)
 	err = result.Error
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func (ur *userRepository) UpdateUser(
 func (ur *userRepository) DeleteUser(ctx context.Context, id int) error {
 	var user model.User
 
-	result := ur.DB.Where("id = ?", id).Delete(&user)
+	result := ur.db.Where("id = ?", id).Delete(&user)
 	err := result.Error
 	if err != nil {
 		return err
@@ -138,6 +138,22 @@ func (r invRepository) SelectAllInvitation(ctx context.Context) ([]model.Invitat
 		return nil, err
 	}
 	return inv, nil
+}
+
+func (r invRepository) InsertInvitation(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error) {
+	inv := model.Invitation{
+		UserID:  userID,
+		Comment: comment,
+		Place:   place,
+	}
+
+	result := r.db.Create(&inv)
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &inv, nil
 }
 
 // // photo

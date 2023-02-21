@@ -17,6 +17,7 @@ type Usecase interface {
 
 	// invtation
 	FindAllInv(ctx context.Context) ([]model.Invitation, error)
+	CreateInv(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error)
 }
 
 type usecase struct {
@@ -78,6 +79,14 @@ func (u *usecase) FindAllInv(ctx context.Context) ([]model.Invitation, error) {
 		return nil, err
 	}
 	return invs, nil
+}
+
+func (u *usecase) CreateInv(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error) {
+	inv, err := u.ir.InsertInvitation(ctx, userID, comment, place)
+	if err != nil {
+		return nil, err
+	}
+	return inv, nil
 }
 
 // type IinvUsecase interface {

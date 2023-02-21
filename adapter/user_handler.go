@@ -191,7 +191,6 @@ func (h *handler) DeleteUser() echo.HandlerFunc {
 }
 
 // Invitaion
-
 type invRes struct {
 	ID      int    `json:"id"`
 	UserID  int    `json:"user_id"`
@@ -218,6 +217,47 @@ func (h *handler) FindAllInv() echo.HandlerFunc {
 			})
 		}
 		return c.JSON(http.StatusOK, invsRes)
+	}
+}
+
+type invPostReq struct {
+	Comment string `json:"comment" validate:"required"`
+	Place   string `json:"place" validate:"required"`
+}
+
+func (h *handler) CreateInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+
+		if c.Request().Method != "POST" {
+			return c.JSON(http.StatusBadRequest, "Post method only allow")
+		}
+
+		params := &invPostReq{}
+		if err := c.Bind(params); err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		userID, err := strconv.Atoi(c.Param("id"))
+
+		createdInv, err := h.uc.CreateInv(
+			ctx,
+			userID,
+			params.Comment,
+			params.Place,
+		)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		var res invRes
+
+		res.ID = int(createdInv.ID)
+		res.UserID = createdInv.UserID
+		res.Comment = createdInv.Comment
+		res.Place = createdInv.Place
+
+		return c.JSON(http.StatusOK, res)
 	}
 }
 
