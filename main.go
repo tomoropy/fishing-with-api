@@ -33,7 +33,7 @@ func main() {
 	// invitation
 	// e.GET("invitation/:id", invHandler.FindInv())
 	e.GET("invitations", handler.FindAllInv())
-	// e.GET("user/:id/invitations", invHandler.UserInv())
+	e.GET("user/:id/invitations", handler.UserInv())
 	e.POST("user/:id/invitation", handler.CreateInv())
 	// e.PUT("user/:id/invitation", invHandler.UpdateInv())
 	// e.DELETE("user/:id/invitation", invHandler.DeleteInv())

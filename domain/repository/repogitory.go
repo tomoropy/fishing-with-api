@@ -17,7 +17,7 @@ type UserRepository interface {
 
 type InvRepository interface {
 	SelectAllInvitation(ctx context.Context) ([]model.Invitation, error)
-	// SelectInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error)
+	SelectInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error)
 	InsertInvitation(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error)
 	// UpdateInvitation(ctx context.Context, id, int, userID int, comment string, place string, startTime string, endTime string) (*model.Invitation, error)
 	// DeleteInvitation(ctx context.Context, id, int, userID int) error

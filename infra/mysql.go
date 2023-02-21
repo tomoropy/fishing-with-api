@@ -156,6 +156,17 @@ func (r invRepository) InsertInvitation(ctx context.Context, userID int, comment
 	return &inv, nil
 }
 
+func (r invRepository) SelectInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error) {
+	var invs []model.Invitation
+
+	result := r.db.Where("user_id = ?", userID).Find(&invs)
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+	return invs, nil
+}
+
 // // photo
 // type photoRepository struct {
 // 	DB *gorm.DB

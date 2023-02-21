@@ -239,6 +239,9 @@ func (h *handler) CreateInv() echo.HandlerFunc {
 		}
 
 		userID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
 
 		createdInv, err := h.uc.CreateInv(
 			ctx,
@@ -258,6 +261,33 @@ func (h *handler) CreateInv() echo.HandlerFunc {
 		res.Place = createdInv.Place
 
 		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func (h *handler) UserInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		userID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		invs, err := h.uc.FindInvitationByUserID(ctx, userID)
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		var invsRes []invRes
+
+		for _, inv := range invs {
+			invsRes = append(invsRes, invRes{
+				ID:      int(inv.ID),
+				UserID:  inv.UserID,
+				Comment: inv.Comment,
+				Place:   inv.Place,
+			})
+		}
+		return c.JSON(http.StatusOK, invsRes)
 	}
 }
 
