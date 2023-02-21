@@ -18,7 +18,7 @@ func NewHandler(uc usecase.Usecase) *handler {
 	}
 }
 
-type userResponse struct {
+type userRes struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
@@ -35,10 +35,10 @@ func (h *handler) FindAllUser() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		var userRes []userResponse
+		var usersRes []userRes
 
 		for _, user := range users {
-			userRes = append(userRes, userResponse{
+			usersRes = append(usersRes, userRes{
 				ID:       int(user.ID),
 				Username: user.Username,
 				Email:    user.Email,
@@ -47,7 +47,7 @@ func (h *handler) FindAllUser() echo.HandlerFunc {
 				Header:   user.Header,
 			})
 		}
-		return c.JSON(http.StatusOK, userRes)
+		return c.JSON(http.StatusOK, usersRes)
 	}
 }
 
@@ -64,7 +64,7 @@ func (h *handler) FindUserByID() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		userRes := userResponse{
+		userRes := userRes{
 			ID:       int(user.ID),
 			Username: user.Username,
 			Email:    user.Email,
@@ -77,7 +77,7 @@ func (h *handler) FindUserByID() echo.HandlerFunc {
 	}
 }
 
-type userPostRequest struct {
+type userPostReq struct {
 	Username string `json:"username" validate:"required"`
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
@@ -94,7 +94,7 @@ func (h *handler) CreateUser() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, "Post method only allow")
 		}
 
-		params := &userPostRequest{}
+		params := &userPostReq{}
 		if err := c.Bind(params); err != nil {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		}
@@ -112,7 +112,7 @@ func (h *handler) CreateUser() echo.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		var userRes userResponse
+		var userRes userRes
 
 		userRes.ID = int(createdUser.ID)
 		userRes.Username = createdUser.Username
@@ -133,7 +133,7 @@ func (h *handler) UpdateUser() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, "PUT method only allow")
 		}
 
-		params := &userPostRequest{}
+		params := &userPostReq{}
 		if err := c.Bind(params); err != nil {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		}
@@ -154,7 +154,7 @@ func (h *handler) UpdateUser() echo.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		var userRes userResponse
+		var userRes userRes
 
 		userRes.ID = int(updateUser.ID)
 		userRes.Username = updateUser.Username
@@ -187,6 +187,37 @@ func (h *handler) DeleteUser() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, "succsess!")
+	}
+}
+
+// Invitaion
+
+type invRes struct {
+	ID      int    `json:"id"`
+	UserID  int    `json:"user_id"`
+	Comment string `json:"comment"`
+	Place   string `json:"place"`
+}
+
+func (h *handler) FindAllInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		invs, err := h.uc.FindAllInv(ctx)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		var invsRes []invRes
+
+		for _, inv := range invs {
+			invsRes = append(invsRes, invRes{
+				ID:      int(inv.ID),
+				UserID:  inv.UserID,
+				Comment: inv.Comment,
+				Place:   inv.Place,
+			})
+		}
+		return c.JSON(http.StatusOK, invsRes)
 	}
 }
 

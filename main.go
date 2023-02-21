@@ -14,7 +14,8 @@ func main() {
 
 	mySQLConn := infra.NewMySQLConnector()
 	userRepository := infra.NewUserRepository(mySQLConn.Conn)
-	usecase := usecase.NewUsecase(userRepository)
+	invRepository := infra.NewInvRepostitory(mySQLConn.Conn)
+	usecase := usecase.NewUsecase(userRepository, invRepository)
 	handler := adapter.NewHandler(usecase)
 
 	e := echo.New()
@@ -29,11 +30,11 @@ func main() {
 	e.PUT("/user/:id", handler.UpdateUser())
 	e.DELETE("/user/:id", handler.DeleteUser())
 
-	// // invitation
+	// invitation
 	// e.GET("invitation/:id", invHandler.FindInv())
-	// e.GET("invitations", invHandler.AllInv())
+	e.GET("invitations", handler.FindAllInv())
 	// e.GET("user/:id/invitations", invHandler.UserInv())
-	// e.POST("user/:id/invitation", invHandler.CreateInv())
+	// e.POST("user/:id/invitation", handler.CreateInv())
 	// e.PUT("user/:id/invitation", invHandler.UpdateInv())
 	// e.DELETE("user/:id/invitation", invHandler.DeleteInv())
 

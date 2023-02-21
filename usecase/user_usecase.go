@@ -14,15 +14,20 @@ type Usecase interface {
 	CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error)
 	UpdateUser(ctx context.Context, id int, username string, email string, password string, text string, avater string, header string) (*model.User, error)
 	DeleteUser(ctx context.Context, id int) error
+
+	// invtation
+	FindAllInv(ctx context.Context) ([]model.Invitation, error)
 }
 
 type usecase struct {
 	ur repository.UserRepository
+	ir repository.InvRepository
 }
 
-func NewUsecase(ur repository.UserRepository) Usecase {
+func NewUsecase(ur repository.UserRepository, ir repository.InvRepository) Usecase {
 	return &usecase{
 		ur: ur,
+		ir: ir,
 	}
 }
 
@@ -67,6 +72,13 @@ func (u *usecase) DeleteUser(ctx context.Context, id int) error {
 }
 
 // invitations usecase
+func (u *usecase) FindAllInv(ctx context.Context) ([]model.Invitation, error) {
+	invs, err := u.ir.SelectAllInvitation(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return invs, nil
+}
 
 // type IinvUsecase interface {
 // 	FindInv(ctx context.Context, id int) *model.Invitation

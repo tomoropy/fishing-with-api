@@ -17,7 +17,7 @@ type User struct {
 type Invitation struct {
 	gorm.Model
 	UserID  int    `json:"user_id"`
-	Commnet string `json:"comment"`
+	Comment string `json:"comment"`
 	Place   string `json:"place"`
 }
 

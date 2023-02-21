@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// user repository
 type userRepository struct {
 	DB *gorm.DB
 }
@@ -116,7 +117,7 @@ func (ur *userRepository) DeleteUser(ctx context.Context, id int) error {
 	return nil
 }
 
-// invitaions
+// invitaion repository
 type invRepository struct {
 	db *gorm.DB
 }
