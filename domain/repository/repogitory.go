@@ -16,11 +16,12 @@ type UserRepository interface {
 }
 
 type InvRepository interface {
+	SelectInv(ctx context.Context, id int) (*model.Invitation, error)
 	SelectAllInvitation(ctx context.Context) ([]model.Invitation, error)
 	SelectInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error)
 	InsertInvitation(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error)
 	UpdateInvitation(ctx context.Context, id int, comment string, place string) (*model.Invitation, error)
-	// DeleteInvitation(ctx context.Context, id, int, userID int) error
+	DeleteInvitation(ctx context.Context, id int) error
 }
 
 // type IPhotoRepository interface {

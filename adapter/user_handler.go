@@ -186,7 +186,7 @@ func (h *handler) DeleteUser() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		return c.JSON(http.StatusOK, "succsess!")
+		return c.JSON(http.StatusOK, "User was deleted")
 	}
 }
 
@@ -196,6 +196,31 @@ type invRes struct {
 	UserID  int    `json:"user_id"`
 	Comment string `json:"comment"`
 	Place   string `json:"place"`
+}
+
+func (h *handler) FindInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		inv, err := h.uc.FindInv(ctx, id)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		var res invRes
+
+		res.ID = int(inv.ID)
+		res.UserID = inv.UserID
+		res.Comment = inv.Comment
+		res.Place = inv.Place
+
+		return c.JSON(http.StatusOK, res)
+	}
 }
 
 func (h *handler) FindAllInv() echo.HandlerFunc {
@@ -322,6 +347,28 @@ func (h *handler) UpdateInv() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, invRes)
 
+	}
+}
+
+func (h *handler) DeleteInv() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+
+		if c.Request().Method != "DELETE" {
+			return c.JSON(http.StatusBadRequest, "DELETE method only allow")
+		}
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		err = h.uc.DeleteInv(ctx, id)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		return c.JSON(http.StatusOK, "Invitation was deleted")
 	}
 }
 

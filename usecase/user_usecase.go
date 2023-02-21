@@ -16,10 +16,12 @@ type Usecase interface {
 	DeleteUser(ctx context.Context, id int) error
 
 	// invtation
+	FindInv(ctx context.Context, id int) (*model.Invitation, error)
 	FindAllInv(ctx context.Context) ([]model.Invitation, error)
 	CreateInv(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error)
 	FindInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error)
 	UpdateInv(ctx context.Context, id int, comment string, place string) (*model.Invitation, error)
+	DeleteInv(ctx context.Context, id int) error
 }
 
 type usecase struct {
@@ -75,6 +77,14 @@ func (u *usecase) DeleteUser(ctx context.Context, id int) error {
 }
 
 // invitations usecase
+func (u *usecase) FindInv(ctx context.Context, id int) (*model.Invitation, error) {
+	inv, err := u.ir.SelectInv(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return inv, nil
+}
+
 func (u *usecase) FindAllInv(ctx context.Context) ([]model.Invitation, error) {
 	invs, err := u.ir.SelectAllInvitation(ctx)
 	if err != nil {
@@ -105,6 +115,14 @@ func (u *usecase) UpdateInv(ctx context.Context, id int, comment string, place s
 		return nil, err
 	}
 	return inv, nil
+}
+
+func (u *usecase) DeleteInv(ctx context.Context, id int) error {
+	err := u.ir.DeleteInvitation(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // type IinvUsecase interface {

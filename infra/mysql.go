@@ -127,6 +127,17 @@ func NewInvRepostitory(db *gorm.DB) repository.InvRepository {
 	}
 }
 
+func (ir invRepository) SelectInv(ctx context.Context, id int) (*model.Invitation, error) {
+	var inv model.Invitation
+
+	result := ir.db.First(&inv, "id = ?", id)
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+	return &inv, nil
+}
+
 func (ir invRepository) SelectAllInvitation(ctx context.Context) ([]model.Invitation, error) {
 	var inv []model.Invitation
 
@@ -185,6 +196,18 @@ func (ir invRepository) UpdateInvitation(ctx context.Context, id int, comment st
 	}
 
 	return &inv, nil
+}
+
+func (ir invRepository) DeleteInvitation(ctx context.Context, id int) error {
+	var inv model.Invitation
+
+	result := ir.db.Where("id = ?", id).Delete(&inv)
+	err := result.Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // // photo
