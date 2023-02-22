@@ -7,12 +7,14 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/tomoropy/fishing-with-api/adapter"
+	"github.com/tomoropy/fishing-with-api/auth"
 	"github.com/tomoropy/fishing-with-api/infra"
 	"github.com/tomoropy/fishing-with-api/usecase"
 )
 
 func main() {
 
+	// DI
 	mySQLConn := infra.NewMySQLConnector()
 	userRepository := infra.NewUserRepository(mySQLConn.Conn)
 	invRepository := infra.NewInvRepostitory(mySQLConn.Conn)
@@ -28,19 +30,25 @@ func main() {
 	})
 
 	// user
-	e.GET("/users", handler.FindAllUser())
-	e.GET("/user/:id", handler.FindUserByID())
-	e.POST("/user", handler.CreateUser())
-	e.PUT("/user/:id", handler.UpdateUser())
-	e.DELETE("/user/:id", handler.DeleteUser())
+	userRoute := e.Group("/user")
+	userRoute.Use(auth.AuthMiddleware)
+
+	userRoute.GET("", handler.FindAllUser())
+	userRoute.GET(":id", handler.FindUserByID())
+	userRoute.POST("", handler.CreateUser())
+	userRoute.PUT(":id", handler.UpdateUser())
+	userRoute.DELETE(":id", handler.DeleteUser())
 
 	// invitation
-	e.GET("invitation/:id", handler.FindInv())
-	e.GET("invitations", handler.FindAllInv())
-	e.GET("user/:id/invitations", handler.UserInv())
-	e.POST("user/:id/invitation", handler.CreateInv())
-	e.PUT("invitation/:id", handler.UpdateInv())
-	e.DELETE("invitation/:id", handler.DeleteInv())
+	invRoute := e.Group("/invitation")
+	invRoute.Use(auth.AuthMiddleware)
+
+	invRoute.GET("", handler.FindAllInv())
+	invRoute.GET(":id", handler.FindInv())
+	invRoute.GET("user/:id", handler.UserInv())
+	invRoute.POST("user/:id", handler.CreateInv())
+	invRoute.PUT(":id", handler.UpdateInv())
+	invRoute.DELETE(":id", handler.DeleteInv())
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
