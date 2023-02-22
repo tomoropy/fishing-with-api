@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/tomoropy/fishing-with-api/adapter"
 	"github.com/tomoropy/fishing-with-api/infra"
 	"github.com/tomoropy/fishing-with-api/usecase"
@@ -19,6 +20,9 @@ func main() {
 	handler := adapter.NewHandler(usecase)
 
 	e := echo.New()
+	e.Use(middleware.Recover())
+	e.Use(middleware.Logger())
+
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Welcome my app!!")
 	})
