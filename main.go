@@ -29,22 +29,24 @@ func main() {
 		return c.String(http.StatusOK, "Welcome my app!!")
 	})
 
-	// user
-	userRoute := e.Group("/user")
-	userRoute.Use(auth.AuthMiddleware)
+	e.POST("login", handler.Login())
+	e.POST("register", handler.Register())
 
-	userRoute.GET("", handler.FindAllUser())
-	userRoute.GET(":id", handler.FindUserByID())
-	userRoute.POST("", handler.CreateUser())
-	userRoute.PUT(":id", handler.UpdateUser())
-	userRoute.DELETE(":id", handler.DeleteUser())
+	// user
+	e.GET("users", handler.FindAllUser())
+	e.GET("user/:id", handler.FindUserByID())
+	// need auth
+	userRoute := e.Group("user")
+	userRoute.Use(auth.AuthMiddleware)
+	userRoute.PUT("/:id", handler.UpdateUser())
+	userRoute.DELETE("/:id", handler.DeleteUser())
 
 	// invitation
+	e.GET("/invitation", handler.FindAllInv())
+	e.GET("/invitation/:id", handler.FindInv())
+	// need auth
 	invRoute := e.Group("/invitation")
 	invRoute.Use(auth.AuthMiddleware)
-
-	invRoute.GET("", handler.FindAllInv())
-	invRoute.GET(":id", handler.FindInv())
 	invRoute.GET("user/:id", handler.UserInv())
 	invRoute.POST("user/:id", handler.CreateInv())
 	invRoute.PUT(":id", handler.UpdateInv())

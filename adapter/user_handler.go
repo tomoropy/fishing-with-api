@@ -77,6 +77,43 @@ func (h *handler) FindUserByID() echo.HandlerFunc {
 	}
 }
 
+type loginReq struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+type loginRes struct {
+	Token string  `json:"token"`
+	User  userRes `json:"user"`
+}
+
+func (h *handler) Login() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+
+		if c.Request().Method != "POST" {
+			return c.JSON(http.StatusBadRequest, "Post method only allow")
+		}
+
+		params := &loginReq{}
+		if err := c.Bind(params); err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		user, token, err := h.uc.Login(ctx, params.Username, params.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		var res loginRes
+
+		res.Token = token
+		res.User.ID = int(user.ID)
+
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
 type userPostReq struct {
 	Username string `json:"username" validate:"required"`
 	Email    string `json:"email" validate:"required"`
@@ -86,7 +123,7 @@ type userPostReq struct {
 	Header   string `json:"header"`
 }
 
-func (h *handler) CreateUser() echo.HandlerFunc {
+func (h *handler) Register() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 
@@ -112,16 +149,16 @@ func (h *handler) CreateUser() echo.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		var userRes userRes
+		var res userRes
 
-		userRes.ID = int(createdUser.ID)
-		userRes.Username = createdUser.Username
-		userRes.Email = createdUser.Email
-		userRes.Text = createdUser.Text
-		userRes.Avater = createdUser.Avater
-		userRes.Header = createdUser.Header
+		res.ID = int(createdUser.ID)
+		res.Username = createdUser.Username
+		res.Email = createdUser.Email
+		res.Text = createdUser.Text
+		res.Avater = createdUser.Avater
+		res.Header = createdUser.Header
 
-		return c.JSON(http.StatusOK, userRes)
+		return c.JSON(http.StatusOK, res)
 	}
 }
 

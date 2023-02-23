@@ -2,13 +2,16 @@ package usecase
 
 import (
 	"context"
+	"time"
 
+	"github.com/tomoropy/fishing-with-api/auth/token"
 	"github.com/tomoropy/fishing-with-api/domain/model"
 	"github.com/tomoropy/fishing-with-api/domain/repository"
 )
 
 type Usecase interface {
 	// user
+	Login(ctx context.Context, username string, password string) (*model.User, string, error)
 	FindAllUser(ctx context.Context) ([]model.User, error)
 	FindUserByID(ctx context.Context, id int) (*model.User, error)
 	CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error)
@@ -34,6 +37,27 @@ func NewUsecase(ur repository.UserRepository, ir repository.InvRepository) Useca
 		ur: ur,
 		ir: ir,
 	}
+}
+
+func (u *usecase) Login(ctx context.Context, username string, password string) (*model.User, string, error) {
+	user, err := u.ur.SelectUserByUsername(ctx, username)
+	if err != nil {
+		return nil, "", err
+	}
+	if user.HashedPassword != password {
+		return nil, "", err
+	}
+
+	tokenMaker, err := token.NewJWTMaker("123456789012345678902345678901234")
+	if err != nil {
+		return nil, "", err
+	}
+
+	token, _, err := tokenMaker.CreateTocken(username, 24*time.Hour)
+	if err != nil {
+		return nil, "", err
+	}
+	return user, token, nil
 }
 
 func (u *usecase) FindAllUser(ctx context.Context) ([]model.User, error) {
