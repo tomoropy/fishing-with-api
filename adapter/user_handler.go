@@ -136,7 +136,7 @@ func (h *handler) Register() echo.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		createdUser, err := h.uc.CreateUser(
+		createdUser, err := h.uc.Register(
 			ctx,
 			params.Username,
 			params.Email,

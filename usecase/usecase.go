@@ -10,14 +10,15 @@ import (
 	"github.com/tomoropy/fishing-with-api/config"
 	"github.com/tomoropy/fishing-with-api/domain/model"
 	"github.com/tomoropy/fishing-with-api/domain/repository"
+	"github.com/tomoropy/fishing-with-api/util"
 )
 
 type Usecase interface {
 	// user
 	Login(ctx context.Context, username string, password string) (*model.User, string, error)
+	Register(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error)
 	FindAllUser(ctx context.Context) ([]model.User, error)
 	FindUserByID(ctx context.Context, id int) (*model.User, error)
-	CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error)
 	UpdateUser(ctx context.Context, id int, username string, email string, password string, text string, avater string, header string) (*model.User, error)
 	DeleteUser(ctx context.Context, id int) error
 
@@ -47,7 +48,8 @@ func (u *usecase) Login(ctx context.Context, username string, password string) (
 	if err != nil {
 		return nil, "", err
 	}
-	if user.HashedPassword != password {
+
+	if err = util.CheckPassword(password, user.HashedPassword); err != nil {
 		return nil, "", errors.New("password is not correct")
 	}
 
@@ -66,7 +68,21 @@ func (u *usecase) Login(ctx context.Context, username string, password string) (
 	if err != nil {
 		return nil, "", err
 	}
+
 	return user, token, nil
+}
+
+func (u *usecase) Register(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
+	hashedPassword, err := util.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+
+	createdUser, err := u.ur.InsertUser(ctx, username, email, hashedPassword, text, avater, header)
+	if err != nil {
+		return nil, err
+	}
+	return createdUser, nil
 }
 
 func (u *usecase) FindAllUser(ctx context.Context) ([]model.User, error) {
@@ -83,14 +99,6 @@ func (u *usecase) FindUserByID(ctx context.Context, id int) (*model.User, error)
 		return nil, err
 	}
 	return user, nil
-}
-
-func (u *usecase) CreateUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error) {
-	createdUser, err := u.ur.InsertUser(ctx, username, email, password, text, avater, header)
-	if err != nil {
-		return nil, err
-	}
-	return createdUser, nil
 }
 
 func (u *usecase) UpdateUser(ctx context.Context, id int, username string, email string, password string, text string, avater string, header string) (*model.User, error) {

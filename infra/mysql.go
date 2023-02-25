@@ -59,7 +59,7 @@ func (ur *userRepository) InsertUser(
 	ctx context.Context,
 	username string,
 	email string,
-	password string,
+	hashedPassword string,
 	text string,
 	avater string,
 	header string,
@@ -67,7 +67,7 @@ func (ur *userRepository) InsertUser(
 	user := model.User{
 		Username:       username,
 		Email:          email,
-		HashedPassword: password,
+		HashedPassword: hashedPassword,
 		Text:           text,
 		Avater:         avater,
 		Header:         header,
