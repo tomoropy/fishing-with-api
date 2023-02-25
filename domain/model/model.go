@@ -6,9 +6,9 @@ import (
 
 type User struct {
 	gorm.Model
-	Username       string `json:"username"`
-	Email          string `json:"email"`
-	HashedPassword string `json:"password"`
+	Username       string `json:"username" gorm:"not null; unique"`
+	Email          string `json:"email" gorm:"not null; unique"`
+	HashedPassword string `json:"password" gorm:"not null; unique"`
 	Text           string `json:"text"`
 	Avater         string `json:"avater"`
 	Header         string `json:"header"`
@@ -16,9 +16,9 @@ type User struct {
 
 type Invitation struct {
 	gorm.Model
-	UserID  int    `json:"user_id"`
-	Comment string `json:"comment"`
-	Place   string `json:"place"`
+	UserID  int    `json:"user_id" gorm:"not null"`
+	Comment string `json:"comment" gorm:"not null"`
+	Place   string `json:"place" gorm:"not null"`
 }
 
 // type Photo struct {

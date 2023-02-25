@@ -6,6 +6,7 @@ import (
 
 	"database/sql"
 
+	"github.com/tomoropy/fishing-with-api/config"
 	"github.com/tomoropy/fishing-with-api/domain/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -16,7 +17,13 @@ type MySQLConnector struct {
 }
 
 func NewMySQLConnector() *MySQLConnector {
-	dsn := "root:password@tcp(mysql)/myapp?charset=utf8mb4&parseTime=True&loc=Local"
+
+	config, err := config.Load()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	dsn := config.DB.User + ":" + config.DB.Password + "@tcp(mysql)/" + config.DB.Database + "?charset=utf8mb4&parseTime=True&loc=Local"
 	sqlDB, err := sql.Open("mysql", dsn)
 
 	if err != nil {

@@ -10,7 +10,8 @@ import (
 type UserRepository interface {
 	SelectAllUser(ctx context.Context) ([]model.User, error)
 	SelectUserByID(ctx context.Context, id int) (*model.User, error)
-	InsertUser(ctx context.Context, username string, email string, password string, text string, avater string, header string) (*model.User, error)
+	SelectUserByUsername(ctx context.Context, username string) (*model.User, error)
+	InsertUser(ctx context.Context, username string, email string, hashedPassword string, text string, avater string, header string) (*model.User, error)
 	UpdateUser(ctx context.Context, id int, username string, email string, password string, text string, avater string, header string) (*model.User, error)
 	DeleteUser(ctx context.Context, id int) error
 }

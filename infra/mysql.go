@@ -31,6 +31,18 @@ func (ur *userRepository) SelectAllUser(ctx context.Context) ([]model.User, erro
 	return users, nil
 }
 
+func (ur *userRepository) SelectUserByUsername(ctx context.Context, username string) (*model.User, error) {
+	var user model.User
+
+	result := ur.db.First(&user, "username = ?", username)
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (ur *userRepository) SelectUserByID(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
 
@@ -47,7 +59,7 @@ func (ur *userRepository) InsertUser(
 	ctx context.Context,
 	username string,
 	email string,
-	password string,
+	hashedPassword string,
 	text string,
 	avater string,
 	header string,
@@ -55,7 +67,7 @@ func (ur *userRepository) InsertUser(
 	user := model.User{
 		Username:       username,
 		Email:          email,
-		HashedPassword: password,
+		HashedPassword: hashedPassword,
 		Text:           text,
 		Avater:         avater,
 		Header:         header,
