@@ -53,4 +53,5 @@ func main() {
 	invRoute.DELETE(":id", handler.DeleteInv())
 
 	e.Logger.Fatal(e.Start(":8080"))
+
 }
