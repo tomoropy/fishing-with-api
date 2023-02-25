@@ -2,9 +2,12 @@ package usecase
 
 import (
 	"context"
+	"errors"
+	"log"
 	"time"
 
 	"github.com/tomoropy/fishing-with-api/auth/token"
+	"github.com/tomoropy/fishing-with-api/config"
 	"github.com/tomoropy/fishing-with-api/domain/model"
 	"github.com/tomoropy/fishing-with-api/domain/repository"
 )
@@ -45,10 +48,16 @@ func (u *usecase) Login(ctx context.Context, username string, password string) (
 		return nil, "", err
 	}
 	if user.HashedPassword != password {
-		return nil, "", err
+		return nil, "", errors.New("password is not correct")
 	}
 
-	tokenMaker, err := token.NewJWTMaker("123456789012345678902345678901234")
+	// load config
+	config, err := config.Load()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	tokenMaker, err := token.NewJWTMaker(config.Auth.SecretKey)
 	if err != nil {
 		return nil, "", err
 	}

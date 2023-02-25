@@ -8,8 +8,8 @@ import (
 
 // マッピング用の構造体
 type Config struct {
-	DB   DB   `yaml:"db"`
-	Auth Auth `yaml:"auth"`
+	DB   DB   `yaml:"DB"`
+	Auth Auth `yaml:"Auth"`
 }
 
 type DB struct {
@@ -20,7 +20,7 @@ type DB struct {
 }
 
 type Auth struct {
-	SecretKey string `yaml:"secret_key"`
+	SecretKey string `yaml:"secretkey"`
 }
 
 func Load() (*Config, error) {
@@ -30,14 +30,14 @@ func Load() (*Config, error) {
 
 	err := viper.ReadInConfig() // 設定ファイルを探索して読み取る
 	if err != nil {
-		return nil, fmt.Errorf("設定ファイル読み込みエラー: %s \n", err)
+		return nil, fmt.Errorf("設定ファイル読み込みエラー: %s", err)
 	}
 
 	var cfg Config
 
 	err = viper.Unmarshal(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("unmarshal error: %s \n", err)
+		return nil, fmt.Errorf("unmarshal error: %s", err)
 	}
 
 	return &cfg, nil

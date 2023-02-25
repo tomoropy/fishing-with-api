@@ -23,8 +23,6 @@ func NewMySQLConnector() *MySQLConnector {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	log.Printf("config: %v", config.DB)
-
 	dsn := config.DB.User + ":" + config.DB.Password + "@tcp(mysql)/" + config.DB.Database + "?charset=utf8mb4&parseTime=True&loc=Local"
 	sqlDB, err := sql.Open("mysql", dsn)
 

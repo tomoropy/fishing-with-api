@@ -3,11 +3,13 @@ package auth
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/tomoropy/fishing-with-api/auth/token"
+	"github.com/tomoropy/fishing-with-api/config"
 )
 
 const (
@@ -35,8 +37,14 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, err)
 		}
 
+		// load config
+		config, err := config.Load()
+		if err != nil {
+			log.Fatalf("failed to load config: %v", err)
+		}
+
 		accessToken := field[1]
-		tokenMaker, err := token.NewJWTMaker("12345678901234567890123456789012")
+		tokenMaker, err := token.NewJWTMaker(config.Auth.SecretKey)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err)
 		}
