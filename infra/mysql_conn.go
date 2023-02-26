@@ -4,16 +4,13 @@ import (
 	"log"
 	"time"
 
-	"database/sql"
-
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"github.com/tomoropy/fishing-with-api/config"
-	"github.com/tomoropy/fishing-with-api/domain/model"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 type MySQLConnector struct {
-	Conn *gorm.DB
+	Conn *sqlx.DB
 }
 
 func NewMySQLConnector() *MySQLConnector {
@@ -24,31 +21,58 @@ func NewMySQLConnector() *MySQLConnector {
 	}
 
 	dsn := config.DB.User + ":" + config.DB.Password + "@tcp(mysql)/" + config.DB.Database + "?charset=utf8mb4&parseTime=True&loc=Local"
-	sqlDB, err := sql.Open("mysql", dsn)
+	db, err := sqlx.Open("mysql", dsn)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// -----------------------------------------------------------------------------------------------------------
 	// DBへのアクセスを時間をおいて試みる
+
 	for {
-		err = sqlDB.Ping()
+		err = db.Ping()
 		if err == nil {
 			break
 		}
 		time.Sleep(3 * time.Second)
 	}
 
-	db, err := gorm.Open(mysql.New(mysql.Config{
-		Conn: sqlDB,
-	}))
+	// -----------------------------------------------------------------------------------------------------------
+	// テーブルの作成
+
+	userTabeleGenerateSql := `
+	CREATE TABLE IF NOT EXISTS users (
+		uid VARCHAR(36) NOT NULL,
+		username VARCHAR(255) NOT NULL,
+		email VARCHAR(255) NOT NULL,
+		hashed_password VARCHAR(255) NOT NULL,
+		text VARCHAR(255) NOT NULL,
+		avater VARCHAR(255) NOT NULL,
+		header VARCHAR(255) NOT NULL,
+		created_at VARCHAR(255) NOT NULL,
+		PRIMARY KEY (uid)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+	`
+	_, err = db.Exec(userTabeleGenerateSql)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Userテーブルを作成
-	db.AutoMigrate(&model.User{})
-	db.AutoMigrate(&model.Invitation{})
+	invitationTabeleGenerateSql := `
+	CREATE TABLE IF NOT EXISTS invitations (
+		uid VARCHAR(36) NOT NULL,
+		user_uid VARCHAR(36) NOT NULL,
+		comment VARCHAR(255) NOT NULL,
+		place VARCHAR(255) NOT NULL,
+		created_at VARCHAR(255) NOT NULL,
+		PRIMARY KEY (uid)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+	`
+	_, err = db.Exec(invitationTabeleGenerateSql)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return &MySQLConnector{
 		Conn: db,
