@@ -3,224 +3,205 @@ package infra
 import (
 	"context"
 
-	"github.com/tomoropy/fishing-with-api/domain/model"
+	"github.com/jmoiron/sqlx"
+	"github.com/labstack/gommon/log"
+	"github.com/tomoropy/fishing-with-api/domain/entity"
 	"github.com/tomoropy/fishing-with-api/domain/repository"
-	"gorm.io/gorm"
 )
 
+// ---------------------------------------------------------------------------------------------------------------------------------------
 // user repository
 type userRepository struct {
-	db *gorm.DB
+	db *sqlx.DB
 }
 
-func NewUserRepository(db *gorm.DB) repository.UserRepository {
+func NewUserRepository(db *sqlx.DB) repository.UserRepository {
 	return &userRepository{
 		db: db,
 	}
 }
 
-func (ur *userRepository) SelectAllUser(ctx context.Context) ([]model.User, error) {
-	var users []model.User
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
-	result := ur.db.Find(&users)
-	err := result.Error
+func (ur *userRepository) SelectAllUser(ctx context.Context) ([]entity.User, error) {
 
+	var users []entity.User
+
+	findAllUserSql := "SELECT * FROM users"
+
+	err := ur.db.Select(&users, findAllUserSql)
 	if err != nil {
+		log.Error("failed to select all user" + err.Error())
 		return nil, err
 	}
+
 	return users, nil
 }
 
-func (ur *userRepository) SelectUserByUsername(ctx context.Context, username string) (*model.User, error) {
-	var user model.User
+func (ur *userRepository) SelectUserByUID(ctx context.Context, uid string) (*entity.User, error) {
 
-	result := ur.db.First(&user, "username = ?", username)
-	err := result.Error
+	var user entity.User
+
+	findUserByUIDSql := "SELECT * FROM users WHERE uid = ?"
+
+	err := ur.db.Get(&user, findUserByUIDSql, uid)
 	if err != nil {
+		log.Error("failed to select user by uid" + err.Error())
 		return nil, err
 	}
 
 	return &user, nil
 }
 
-func (ur *userRepository) SelectUserByID(ctx context.Context, id int) (*model.User, error) {
-	var user model.User
+func (ur *userRepository) SelectUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 
-	result := ur.db.First(&user, "id = ?", id)
-	err := result.Error
+	var user entity.User
+
+	findUserByEmailSql := "SELECT * FROM users WHERE email = ?"
+
+	err := ur.db.Get(&user, findUserByEmailSql, email)
 	if err != nil {
+		log.Error("failed to select user by email" + err.Error())
 		return nil, err
 	}
 
 	return &user, nil
 }
 
-func (ur *userRepository) InsertUser(
-	ctx context.Context,
-	username string,
-	email string,
-	hashedPassword string,
-	text string,
-	avater string,
-	header string,
-) (*model.User, error) {
-	user := model.User{
-		Username:       username,
-		Email:          email,
-		HashedPassword: hashedPassword,
-		Text:           text,
-		Avater:         avater,
-		Header:         header,
-	}
+func (ur *userRepository) InsertUser(ctx context.Context, user entity.User) (*entity.User, error) {
 
-	result := ur.db.Create(&user)
-	err := result.Error
+	insertUserSql := "INSERT INTO users (uid, username, email, hashed_password, text, avater, header, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+
+	_, err := ur.db.Exec(insertUserSql, user.UID, user.Username, user.Email, user.HashedPassword, user.Text, user.Avater, user.CreatedAt, user.Header)
 	if err != nil {
+		log.Error("failed to insert user" + err.Error())
 		return nil, err
 	}
 
 	return &user, nil
 }
 
-func (ur *userRepository) UpdateUser(
-	ctx context.Context,
-	id int,
-	username string,
-	email string,
-	password string,
-	text string,
-	avater string,
-	header string,
-) (*model.User, error) {
-	var user model.User
+func (ur *userRepository) UpdateUser(ctx context.Context, user entity.User) (*entity.User, error) {
 
-	result := ur.db.First(&user, "id = ?", id)
-	err := result.Error
+	updateUserSql := "UPDATE users SET username = ?, email = ?, hashed_password = ?, text = ?, avater = ?, header = ? WHERE uid = ?"
+
+	_, err := ur.db.Exec(updateUserSql, user.Username, user.Email, user.HashedPassword, user.Text, user.Avater, user.Header, user.UID)
 	if err != nil {
-		return nil, err
-	}
-
-	user.Username = username
-	user.Email = email
-	user.HashedPassword = password
-	user.Text = text
-	user.Avater = avater
-	user.Header = header
-
-	result = ur.db.Save(&user)
-	err = result.Error
-	if err != nil {
+		log.Error("failed to update user" + err.Error())
 		return nil, err
 	}
 
 	return &user, nil
 }
 
-func (ur *userRepository) DeleteUser(ctx context.Context, id int) error {
-	var user model.User
+func (ur *userRepository) DeleteUser(ctx context.Context, uid string) error {
 
-	result := ur.db.Where("id = ?", id).Delete(&user)
-	err := result.Error
+	deleteUserSql := "DELETE FROM users WHERE uid = ?"
+
+	_, err := ur.db.Exec(deleteUserSql, uid)
 	if err != nil {
+		log.Error("failed to delete user" + err.Error())
 		return err
 	}
 
 	return nil
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
 // invitaion repository
-type invRepository struct {
-	db *gorm.DB
-}
+// type invRepository struct {
+// 	db *gorm.DB
+// }
 
-func NewInvRepostitory(db *gorm.DB) repository.InvRepository {
-	return &invRepository{
-		db: db,
-	}
-}
+// func NewInvRepostitory(db *gorm.DB) repository.InvRepository {
+// 	return &invRepository{
+// 		db: db,
+// 	}
+// }
 
-func (ir invRepository) SelectInv(ctx context.Context, id int) (*model.Invitation, error) {
-	var inv model.Invitation
+// func (ir invRepository) SelectInv(ctx context.Context, id int) (*entity.Invitation, error) {
+// 	var inv entity.Invitation
 
-	result := ir.db.First(&inv, "id = ?", id)
-	err := result.Error
-	if err != nil {
-		return nil, err
-	}
-	return &inv, nil
-}
+// 	result := ir.db.First(&inv, "id = ?", id)
+// 	err := result.Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return &inv, nil
+// }
 
-func (ir invRepository) SelectAllInvitation(ctx context.Context) ([]model.Invitation, error) {
-	var inv []model.Invitation
+// func (ir invRepository) SelectAllInvitation(ctx context.Context) ([]entity.Invitation, error) {
+// 	var inv []entity.Invitation
 
-	result := ir.db.Find(&inv)
-	err := result.Error
+// 	result := ir.db.Find(&inv)
+// 	err := result.Error
 
-	if err != nil {
-		return nil, err
-	}
-	return inv, nil
-}
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return inv, nil
+// }
 
-func (ir invRepository) InsertInvitation(ctx context.Context, userID int, comment string, place string) (*model.Invitation, error) {
-	inv := model.Invitation{
-		UserID:  userID,
-		Comment: comment,
-		Place:   place,
-	}
+// func (ir invRepository) InsertInvitation(ctx context.Context, userID int, comment string, place string) (*entity.Invitation, error) {
+// 	inv := entity.Invitation{
+// 		UserID:  userID,
+// 		Comment: comment,
+// 		Place:   place,
+// 	}
 
-	result := ir.db.Create(&inv)
-	err := result.Error
-	if err != nil {
-		return nil, err
-	}
+// 	result := ir.db.Create(&inv)
+// 	err := result.Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &inv, nil
-}
+// 	return &inv, nil
+// }
 
-func (ir invRepository) SelectInvitationByUserID(ctx context.Context, userID int) ([]model.Invitation, error) {
-	var invs []model.Invitation
+// func (ir invRepository) SelectInvitationByUserID(ctx context.Context, userID int) ([]entity.Invitation, error) {
+// 	var invs []entity.Invitation
 
-	result := ir.db.Where("user_id = ?", userID).Find(&invs)
-	err := result.Error
-	if err != nil {
-		return nil, err
-	}
-	return invs, nil
-}
+// 	result := ir.db.Where("user_id = ?", userID).Find(&invs)
+// 	err := result.Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return invs, nil
+// }
 
-func (ir invRepository) UpdateInvitation(ctx context.Context, id int, comment string, place string) (*model.Invitation, error) {
-	var inv model.Invitation
+// func (ir invRepository) UpdateInvitation(ctx context.Context, id int, comment string, place string) (*entity.Invitation, error) {
+// 	var inv entity.Invitation
 
-	result := ir.db.First(&inv, "id = ?", id)
-	err := result.Error
-	if err != nil {
-		return nil, err
-	}
+// 	result := ir.db.First(&inv, "id = ?", id)
+// 	err := result.Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	inv.Comment = comment
-	inv.Place = place
+// 	inv.Comment = comment
+// 	inv.Place = place
 
-	result = ir.db.Save(&inv)
-	err = result.Error
-	if err != nil {
-		return nil, err
-	}
+// 	result = ir.db.Save(&inv)
+// 	err = result.Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &inv, nil
-}
+// 	return &inv, nil
+// }
 
-func (ir invRepository) DeleteInvitation(ctx context.Context, id int) error {
-	var inv model.Invitation
+// func (ir invRepository) DeleteInvitation(ctx context.Context, id int) error {
+// 	var inv entity.Invitation
 
-	result := ir.db.Where("id = ?", id).Delete(&inv)
-	err := result.Error
-	if err != nil {
-		return err
-	}
+// 	result := ir.db.Where("id = ?", id).Delete(&inv)
+// 	err := result.Error
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // // photo
 // type photoRepository struct {
