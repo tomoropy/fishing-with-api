@@ -19,7 +19,7 @@ func (p *presenter) User(user *entity.User) *model.User {
 	return &model.User{
 		UID:       user.UID,
 		Username:  user.Username,
-		Password:  user.HashedPassword,
+		Password:  "", // password is not returned
 		Email:     user.Email,
 		Text:      user.Text,
 		Avater:    user.Avater,

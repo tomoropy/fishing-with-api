@@ -2,9 +2,14 @@
 
 package model
 
-type LoginResponse struct {
-	Token string `json:"token"`
-	User  *User  `json:"user"`
+type ResponceInfo struct {
+	Message string `json:"message"`
+	Status  int    `json:"status"`
+}
+
+type UpdateUserInput struct {
+	UID  string     `json:"uid"`
+	User *UserInput `json:"user"`
 }
 
 type User struct {

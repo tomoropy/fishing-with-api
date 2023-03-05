@@ -46,7 +46,7 @@ func (ur *userRepository) SelectUserByUID(ctx context.Context, uid string) (*ent
 
 	err := ur.db.Get(&user, findUserByUIDSql, uid)
 	if err != nil {
-		log.Error("failed to select user by uid" + err.Error())
+		log.Error("failed to select user by uid " + err.Error())
 		return nil, err
 	}
 

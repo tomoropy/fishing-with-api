@@ -2,11 +2,15 @@
 #
 # https://gqlgen.com/getting-started/
 type Query {
-  login(email: String!, password: String!): LoginResponse!
+  login(email: String!, password: String!): User!
+  allUser: [User!]!
+  userByUid(uid: ID!): User!
 }
 
 type Mutation {
   createUser(input: UserInput!): User!
+  updateUser(input: UpdateUserInput!): User!
+  deleteUser(uid: ID!): ResponceInfo!
 }
 
 type User {
@@ -20,6 +24,11 @@ type User {
   createdAt: String!
 }
 
+type ResponceInfo {
+  message: String!
+  status: Int!
+}
+
 input UserInput {
   username: String!
   email: String!
@@ -29,7 +38,7 @@ input UserInput {
   header: String!
 }
 
-type LoginResponse {
-  token: String!
-  user: User!
+input UpdateUserInput {
+  uid: ID!
+  user: UserInput!
 }

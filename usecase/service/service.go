@@ -3,11 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"log"
-	"time"
 
-	"github.com/tomoropy/fishing-with-api/auth/token"
-	"github.com/tomoropy/fishing-with-api/config"
 	"github.com/tomoropy/fishing-with-api/domain/entity"
 	"github.com/tomoropy/fishing-with-api/domain/repository"
 	"github.com/tomoropy/fishing-with-api/util"
@@ -17,7 +13,7 @@ import (
 // interface
 
 type QueryService interface {
-	Login(ctx context.Context, email string, password string) (*entity.User, string, error)
+	Login(ctx context.Context, email string, password string) (*entity.User, error)
 	ListUsers(ctx context.Context) ([]entity.User, error)
 	GetUser(ctx context.Context, id string) (*entity.User, error)
 }
@@ -25,7 +21,7 @@ type QueryService interface {
 type MutationService interface {
 	CreateUser(ctx context.Context, user *entity.User) (*entity.User, error)
 	UpdateUser(ctx context.Context, user *entity.User) (*entity.User, error)
-	DeleteUser(ctx context.Context, id string) error
+	DeleteUser(ctx context.Context, uid string) error
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -48,35 +44,18 @@ func NewQueryService(
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // QueryServiceの実装
 
-func (qs *queyrService) Login(ctx context.Context, email string, password string) (*entity.User, string, error) {
+func (qs *queyrService) Login(ctx context.Context, email string, password string) (*entity.User, error) {
 	user, err := qs.ur.SelectUserByEmail(ctx, email)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	// passwrod check
 	if err = util.CheckPassword(password, user.HashedPassword); err != nil {
-		return nil, "", errors.New("password is not correct")
+		return nil, errors.New("password is not correct")
 	}
 
-	// load config
-	config, err := config.Load()
-	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
-	}
-
-	tokenMaker, err := token.NewJWTMaker(config.Auth.SecretKey)
-	if err != nil {
-		return nil, "", err
-	}
-
-	// create token
-	token, _, err := tokenMaker.CreateTocken(email, 24*time.Hour)
-	if err != nil {
-		return nil, "", err
-	}
-
-	return user, token, nil
+	return user, nil
 }
 
 func (qs *queyrService) ListUsers(ctx context.Context) ([]entity.User, error) {
@@ -151,8 +130,8 @@ func (ms *mutationService) UpdateUser(ctx context.Context, user *entity.User) (*
 	return updatedUser, nil
 }
 
-func (ms *mutationService) DeleteUser(ctx context.Context, id string) error {
-	err := ms.ur.DeleteUser(ctx, id)
+func (ms *mutationService) DeleteUser(ctx context.Context, uid string) error {
+	err := ms.ur.DeleteUser(ctx, uid)
 	if err != nil {
 		return err
 	}
