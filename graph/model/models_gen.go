@@ -7,6 +7,25 @@ type ResponceInfo struct {
 	Status  int    `json:"status"`
 }
 
+type Tweet struct {
+	UID       string `json:"uid"`
+	UserID    string `json:"userID"`
+	Body      string `json:"body"`
+	Image     string `json:"image"`
+	CreatedAt string `json:"createdAt"`
+}
+
+type TweetInput struct {
+	UserID string `json:"userID"`
+	Body   string `json:"body"`
+	Image  string `json:"image"`
+}
+
+type UpdateTweetInput struct {
+	UID   string      `json:"uid"`
+	Tweet *TweetInput `json:"tweet"`
+}
+
 type UpdateUserInput struct {
 	UID  string     `json:"uid"`
 	User *UserInput `json:"user"`

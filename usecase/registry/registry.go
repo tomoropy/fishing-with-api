@@ -27,9 +27,10 @@ func NewRegister(db *sqlx.DB) Register {
 // DI in Resolver
 func (r *register) NewResolver(ctx context.Context) (*graph.Resolver, error) {
 	ur := infra.NewUserRepository(r.db)
+	tr := infra.NewTweetRepository(r.db)
 
-	qs := service.NewQueryService(ur)
-	ms := service.NewMutationService(ur)
+	qs := service.NewQueryService(ur, tr)
+	ms := service.NewMutationService(ur, tr)
 	p := presenter.NewPresenter()
 
 	resolver := graph.NewResolver(qs, ms, p)

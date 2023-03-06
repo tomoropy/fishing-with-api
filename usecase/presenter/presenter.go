@@ -9,6 +9,7 @@ type presenter struct{}
 
 type Presenter interface {
 	User(*entity.User) *model.User
+	Tweet(*entity.Tweet) *model.Tweet
 }
 
 func NewPresenter() Presenter {
@@ -25,5 +26,15 @@ func (p *presenter) User(user *entity.User) *model.User {
 		Avater:    user.Avater,
 		Header:    user.Header,
 		CreatedAt: user.CreatedAt,
+	}
+}
+
+func (p *presenter) Tweet(tweet *entity.Tweet) *model.Tweet {
+	return &model.Tweet{
+		UID:       tweet.UID,
+		UserID:    tweet.UserUID,
+		Body:      tweet.Body,
+		Image:     tweet.Image,
+		CreatedAt: tweet.CreatedAt,
 	}
 }

@@ -2,16 +2,31 @@
 #
 # https://gqlgen.com/getting-started/
 type Query {
+  # user
   login(email: String!, password: String!): User!
   allUser: [User!]!
   userByUid(uid: ID!): User!
+  
+  # tweet
+  allTweet: [Tweet!]!
+  tweetsByUID(uid: ID!): Tweet!
+  tweetByUserID(userid: ID!): [Tweet!]!
 }
 
 type Mutation {
+  # user
   createUser(input: UserInput!): User!
   updateUser(input: UpdateUserInput!): User!
   deleteUser(uid: ID!): ResponceInfo!
+
+  # tweet
+  createTweet(input: TweetInput!): Tweet!
+  updateTweet(input: UpdateTweetInput!): Tweet!
+  deleteTweet(uid: ID!): ResponceInfo!
 }
+
+# ======================================================================
+# user 
 
 type User {
   uid: ID!
@@ -22,11 +37,6 @@ type User {
   avater: String!
   header: String!
   createdAt: String!
-}
-
-type ResponceInfo {
-  message: String!
-  status: Int!
 }
 
 input UserInput {
@@ -41,4 +51,33 @@ input UserInput {
 input UpdateUserInput {
   uid: ID!
   user: UserInput!
+}
+
+# ======================================================================
+# tweet
+
+type Tweet {
+  uid: ID!
+  userID: ID!
+  body: String!
+  image: String!
+  createdAt: String!
+}
+
+input TweetInput {
+  userID: ID!
+  body: String!
+  image: String!
+}
+
+input UpdateTweetInput {
+  uid: ID!
+  tweet: TweetInput!
+}
+
+# ======================================================================
+
+type ResponceInfo {
+  message: String!
+  status: Int!
 }

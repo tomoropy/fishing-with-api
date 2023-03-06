@@ -59,17 +59,18 @@ func NewMySQLConnector() *MySQLConnector {
 		log.Fatal(err)
 	}
 
-	invitationTabeleGenerateSql := `
-	CREATE TABLE IF NOT EXISTS invitations (
+	tweetTabeleGenerateSql := `
+	CREATE TABLE IF NOT EXISTS tweets (
 		uid VARCHAR(36) NOT NULL,
 		user_uid VARCHAR(36) NOT NULL,
-		comment VARCHAR(255) NOT NULL,
-		place VARCHAR(255) NOT NULL,
+		body VARCHAR(255) NOT NULL,
+		image VARCHAR(255) NOT NULL,
 		created_at VARCHAR(255) NOT NULL,
-		PRIMARY KEY (uid)
+		PRIMARY KEY (uid),
+		FOREIGN KEY (user_uid) REFERENCES users(uid)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 	`
-	_, err = db.Exec(invitationTabeleGenerateSql)
+	_, err = db.Exec(tweetTabeleGenerateSql)
 	if err != nil {
 		log.Fatal(err)
 	}
