@@ -7,19 +7,19 @@ import (
 )
 
 type UserRepository interface {
-	SelectAllUser(ctx context.Context) ([]entity.User, error)
-	SelectUserByUID(ctx context.Context, uid string) (*entity.User, error)
-	SelectUserByEmail(ctx context.Context, email string) (*entity.User, error)
-	InsertUser(ctx context.Context, user entity.User) (*entity.User, error)
-	UpdateUser(ctx context.Context, user entity.User) (*entity.User, error)
-	DeleteUserTX(ctx context.Context, uid string) error
+	SelectAll(ctx context.Context) ([]entity.User, error)
+	SelectByUID(ctx context.Context, uid string) (*entity.User, error)
+	SelectByEmail(ctx context.Context, email string) (*entity.User, error)
+	Insert(ctx context.Context, user entity.User) (*entity.User, error)
+	Update(ctx context.Context, user entity.User) (*entity.User, error)
+	DeleteTX(ctx context.Context, uid string) error
 }
 
 type TweetRepository interface {
-	SelectAllTweet(ctx context.Context) ([]entity.Tweet, error)
-	SelectTweetByUID(ctx context.Context, uid string) (*entity.Tweet, error)
-	SelectTweetByUserUID(ctx context.Context, userID string) ([]entity.Tweet, error)
-	InsertTweet(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error)
-	UpdateTweet(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error)
-	DeleteTweet(ctx context.Context, uid string) error
+	SelectAll(ctx context.Context) ([]entity.Tweet, error)
+	SelectByUID(ctx context.Context, uid string) (*entity.Tweet, error)
+	SelectByUserUID(ctx context.Context, userID string) ([]entity.Tweet, error)
+	Insert(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error)
+	Update(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error)
+	Delete(ctx context.Context, uid string) error
 }

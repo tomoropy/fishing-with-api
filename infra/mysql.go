@@ -23,7 +23,7 @@ func NewUserRepository(db *sqlx.DB) repository.UserRepository {
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-func (ur *userRepository) SelectAllUser(ctx context.Context) ([]entity.User, error) {
+func (ur *userRepository) SelectAll(ctx context.Context) ([]entity.User, error) {
 
 	var users []entity.User
 
@@ -38,7 +38,7 @@ func (ur *userRepository) SelectAllUser(ctx context.Context) ([]entity.User, err
 	return users, nil
 }
 
-func (ur *userRepository) SelectUserByUID(ctx context.Context, uid string) (*entity.User, error) {
+func (ur *userRepository) SelectByUID(ctx context.Context, uid string) (*entity.User, error) {
 
 	var user entity.User
 
@@ -46,14 +46,13 @@ func (ur *userRepository) SelectUserByUID(ctx context.Context, uid string) (*ent
 
 	err := ur.db.Get(&user, findUserByUIDSql, uid)
 	if err != nil {
-		log.Error("failed to select user by uid " + err.Error())
 		return nil, err
 	}
 
 	return &user, nil
 }
 
-func (ur *userRepository) SelectUserByEmail(ctx context.Context, email string) (*entity.User, error) {
+func (ur *userRepository) SelectByEmail(ctx context.Context, email string) (*entity.User, error) {
 
 	var user entity.User
 
@@ -68,7 +67,7 @@ func (ur *userRepository) SelectUserByEmail(ctx context.Context, email string) (
 	return &user, nil
 }
 
-func (ur *userRepository) InsertUser(ctx context.Context, user entity.User) (*entity.User, error) {
+func (ur *userRepository) Insert(ctx context.Context, user entity.User) (*entity.User, error) {
 
 	insertUserSql := "INSERT INTO users (uid, username, email, hashed_password, text, avater, header, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
@@ -81,7 +80,7 @@ func (ur *userRepository) InsertUser(ctx context.Context, user entity.User) (*en
 	return &user, nil
 }
 
-func (ur *userRepository) UpdateUser(ctx context.Context, user entity.User) (*entity.User, error) {
+func (ur *userRepository) Update(ctx context.Context, user entity.User) (*entity.User, error) {
 
 	updateUserSql := "UPDATE users SET username = ?, email = ?, hashed_password = ?, text = ?, avater = ?, header = ? WHERE uid = ?"
 
@@ -94,7 +93,7 @@ func (ur *userRepository) UpdateUser(ctx context.Context, user entity.User) (*en
 	return &user, nil
 }
 
-func (ur *userRepository) DeleteUserTX(ctx context.Context, uid string) error {
+func (ur *userRepository) DeleteTX(ctx context.Context, uid string) error {
 
 	tx, err := ur.db.Beginx()
 	if err != nil {
@@ -127,7 +126,7 @@ func (ur *userRepository) DeleteUserTX(ctx context.Context, uid string) error {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
-// user repository
+// tweet repository
 type tweetRepository struct {
 	db *sqlx.DB
 }
@@ -140,7 +139,7 @@ func NewTweetRepository(db *sqlx.DB) repository.TweetRepository {
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-func (tr *tweetRepository) SelectAllTweet(ctx context.Context) ([]entity.Tweet, error) {
+func (tr *tweetRepository) SelectAll(ctx context.Context) ([]entity.Tweet, error) {
 
 	var tweets []entity.Tweet
 
@@ -155,7 +154,7 @@ func (tr *tweetRepository) SelectAllTweet(ctx context.Context) ([]entity.Tweet, 
 	return tweets, nil
 }
 
-func (tr *tweetRepository) SelectTweetByUID(ctx context.Context, uid string) (*entity.Tweet, error) {
+func (tr *tweetRepository) SelectByUID(ctx context.Context, uid string) (*entity.Tweet, error) {
 
 	var tweet entity.Tweet
 
@@ -170,7 +169,7 @@ func (tr *tweetRepository) SelectTweetByUID(ctx context.Context, uid string) (*e
 	return &tweet, nil
 }
 
-func (tr *tweetRepository) SelectTweetByUserUID(ctx context.Context, userUID string) ([]entity.Tweet, error) {
+func (tr *tweetRepository) SelectByUserUID(ctx context.Context, userUID string) ([]entity.Tweet, error) {
 
 	var tweets []entity.Tweet
 
@@ -185,7 +184,7 @@ func (tr *tweetRepository) SelectTweetByUserUID(ctx context.Context, userUID str
 	return tweets, nil
 }
 
-func (tr *tweetRepository) InsertTweet(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error) {
+func (tr *tweetRepository) Insert(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error) {
 
 	insertTweetSql := "INSERT INTO tweets (uid, user_uid, body, image, created_at) VALUES (?, ?, ?, ?, ?)"
 
@@ -198,7 +197,7 @@ func (tr *tweetRepository) InsertTweet(ctx context.Context, tweet entity.Tweet) 
 	return &tweet, nil
 }
 
-func (tr *tweetRepository) UpdateTweet(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error) {
+func (tr *tweetRepository) Update(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error) {
 
 	updateTweetSql := "UPDATE tweets SET body = ?, image = ? WHERE uid = ?"
 
@@ -211,7 +210,7 @@ func (tr *tweetRepository) UpdateTweet(ctx context.Context, tweet entity.Tweet) 
 	return &tweet, nil
 }
 
-func (tr *tweetRepository) DeleteTweet(ctx context.Context, uid string) error {
+func (tr *tweetRepository) Delete(ctx context.Context, uid string) error {
 
 	deleteTweetSql := "DELETE FROM tweets WHERE uid = ?"
 

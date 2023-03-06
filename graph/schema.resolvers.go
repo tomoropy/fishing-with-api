@@ -26,7 +26,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput
 	user.Text = input.Text
 	user.CreatedAt = time.Now().Format(time.RFC3339)
 
-	createdUser, err := r.MS.CreateUser(ctx, &user)
+	createdUser, err := r.MS.SaveUser(ctx, &user)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput
 
 // UpdateUser is the resolver for the updateUser field.
 func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error) {
-	updatedUser, err := r.MS.UpdateUser(ctx, &entity.User{
+	updatedUser, err := r.MS.SaveUser(ctx, &entity.User{
 		UID:            input.UID,
 		Username:       input.User.Username,
 		Email:          input.User.Email,
@@ -70,7 +70,7 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, uid string) (*model.R
 
 // CreateTweet is the resolver for the createTweet field.
 func (r *mutationResolver) CreateTweet(ctx context.Context, input model.TweetInput) (*model.Tweet, error) {
-	createdTweet, err := r.MS.CreateTweet(ctx, &entity.Tweet{
+	createdTweet, err := r.MS.SaveTweet(ctx, &entity.Tweet{
 		UID:       uuid.New().String(),
 		UserUID:   input.UserID,
 		Body:      input.Body,
@@ -85,7 +85,7 @@ func (r *mutationResolver) CreateTweet(ctx context.Context, input model.TweetInp
 
 // UpdateTweet is the resolver for the updateTweet field.
 func (r *mutationResolver) UpdateTweet(ctx context.Context, input model.UpdateTweetInput) (*model.Tweet, error) {
-	updatedTweet, err := r.MS.UpdateTweet(ctx, &entity.Tweet{
+	updatedTweet, err := r.MS.SaveTweet(ctx, &entity.Tweet{
 		UID:     input.UID,
 		UserUID: input.Tweet.UserID,
 		Body:    input.Tweet.Body,

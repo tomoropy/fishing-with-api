@@ -43,10 +43,10 @@ func NewMySQLConnector() *MySQLConnector {
 
 	userTabeleGenerateSql := `
 	CREATE TABLE IF NOT EXISTS users (
-		uid VARCHAR(36) NOT NULL,
+		uid VARCHAR(36) NOT NULLo,
 		username VARCHAR(255) NOT NULL,
-		email VARCHAR(255) NOT NULL,
-		hashed_password VARCHAR(255) NOT NULL,
+		email VARCHAR(255) NOT NULL UNIQUE,
+		hashed_password VARCHAR(255) NOT NULL UNIQUE,
 		text VARCHAR(255) NOT NULL,
 		avater VARCHAR(255) NOT NULL,
 		header VARCHAR(255) NOT NULL,
