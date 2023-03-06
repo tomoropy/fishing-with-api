@@ -46,7 +46,7 @@ func (ur *userRepository) SelectUserByUID(ctx context.Context, uid string) (*ent
 
 	err := ur.db.Get(&user, findUserByUIDSql, uid)
 	if err != nil {
-		log.Error("failed to select user by uid" + err.Error())
+		log.Error("failed to select user by uid " + err.Error())
 		return nil, err
 	}
 
@@ -72,7 +72,7 @@ func (ur *userRepository) InsertUser(ctx context.Context, user entity.User) (*en
 
 	insertUserSql := "INSERT INTO users (uid, username, email, hashed_password, text, avater, header, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
-	_, err := ur.db.Exec(insertUserSql, user.UID, user.Username, user.Email, user.HashedPassword, user.Text, user.Avater, user.CreatedAt, user.Header)
+	_, err := ur.db.Exec(insertUserSql, user.UID, user.Username, user.Email, user.HashedPassword, user.Text, user.Avater, user.Header, user.CreatedAt)
 	if err != nil {
 		log.Error("failed to insert user" + err.Error())
 		return nil, err
@@ -94,13 +94,32 @@ func (ur *userRepository) UpdateUser(ctx context.Context, user entity.User) (*en
 	return &user, nil
 }
 
-func (ur *userRepository) DeleteUser(ctx context.Context, uid string) error {
+func (ur *userRepository) DeleteUserTX(ctx context.Context, uid string) error {
+
+	tx, err := ur.db.Beginx()
+	if err != nil {
+		log.Error("failed to begin transaction" + err.Error())
+		return err
+	}
 
 	deleteUserSql := "DELETE FROM users WHERE uid = ?"
+	deleteTweetSql := "DELETE FROM tweets WHERE user_uid = ?"
 
-	_, err := ur.db.Exec(deleteUserSql, uid)
+	_, err = tx.Exec(deleteTweetSql, uid)
+	if err != nil {
+		log.Error("failed to delete tweet" + err.Error())
+		return err
+	}
+
+	_, err = tx.Exec(deleteUserSql, uid)
 	if err != nil {
 		log.Error("failed to delete user" + err.Error())
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Error("failed to commit transaction" + err.Error())
 		return err
 	}
 
@@ -108,108 +127,99 @@ func (ur *userRepository) DeleteUser(ctx context.Context, uid string) error {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
+// user repository
+type tweetRepository struct {
+	db *sqlx.DB
+}
 
-// invitaion repository
-// type invRepository struct {
-// 	db *gorm.DB
-// }
+func NewTweetRepository(db *sqlx.DB) repository.TweetRepository {
+	return &tweetRepository{
+		db: db,
+	}
+}
 
-// func NewInvRepostitory(db *gorm.DB) repository.InvRepository {
-// 	return &invRepository{
-// 		db: db,
-// 	}
-// }
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
-// func (ir invRepository) SelectInv(ctx context.Context, id int) (*entity.Invitation, error) {
-// 	var inv entity.Invitation
+func (tr *tweetRepository) SelectAllTweet(ctx context.Context) ([]entity.Tweet, error) {
 
-// 	result := ir.db.First(&inv, "id = ?", id)
-// 	err := result.Error
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return &inv, nil
-// }
+	var tweets []entity.Tweet
 
-// func (ir invRepository) SelectAllInvitation(ctx context.Context) ([]entity.Invitation, error) {
-// 	var inv []entity.Invitation
+	findAllTweetSql := "SELECT * FROM tweets"
 
-// 	result := ir.db.Find(&inv)
-// 	err := result.Error
+	err := tr.db.Select(&tweets, findAllTweetSql)
+	if err != nil {
+		log.Error("failed to select all tweet" + err.Error())
+		return nil, err
+	}
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return inv, nil
-// }
+	return tweets, nil
+}
 
-// func (ir invRepository) InsertInvitation(ctx context.Context, userID int, comment string, place string) (*entity.Invitation, error) {
-// 	inv := entity.Invitation{
-// 		UserID:  userID,
-// 		Comment: comment,
-// 		Place:   place,
-// 	}
+func (tr *tweetRepository) SelectTweetByUID(ctx context.Context, uid string) (*entity.Tweet, error) {
 
-// 	result := ir.db.Create(&inv)
-// 	err := result.Error
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	var tweet entity.Tweet
 
-// 	return &inv, nil
-// }
+	findTweetByUIDSql := "SELECT * FROM tweets WHERE uid = ?"
 
-// func (ir invRepository) SelectInvitationByUserID(ctx context.Context, userID int) ([]entity.Invitation, error) {
-// 	var invs []entity.Invitation
+	err := tr.db.Get(&tweet, findTweetByUIDSql, uid)
+	if err != nil {
+		log.Error("failed to select tweet by uid " + err.Error())
+		return nil, err
+	}
 
-// 	result := ir.db.Where("user_id = ?", userID).Find(&invs)
-// 	err := result.Error
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return invs, nil
-// }
+	return &tweet, nil
+}
 
-// func (ir invRepository) UpdateInvitation(ctx context.Context, id int, comment string, place string) (*entity.Invitation, error) {
-// 	var inv entity.Invitation
+func (tr *tweetRepository) SelectTweetByUserUID(ctx context.Context, userUID string) ([]entity.Tweet, error) {
 
-// 	result := ir.db.First(&inv, "id = ?", id)
-// 	err := result.Error
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	var tweets []entity.Tweet
 
-// 	inv.Comment = comment
-// 	inv.Place = place
+	findTweetByUserUIDSql := "SELECT * FROM tweets WHERE user_uid = ?"
 
-// 	result = ir.db.Save(&inv)
-// 	err = result.Error
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	err := tr.db.Select(&tweets, findTweetByUserUIDSql, userUID)
+	if err != nil {
+		log.Error("failed to select tweet by user uid " + err.Error())
+		return nil, err
+	}
 
-// 	return &inv, nil
-// }
+	return tweets, nil
+}
 
-// func (ir invRepository) DeleteInvitation(ctx context.Context, id int) error {
-// 	var inv entity.Invitation
+func (tr *tweetRepository) InsertTweet(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error) {
 
-// 	result := ir.db.Where("id = ?", id).Delete(&inv)
-// 	err := result.Error
-// 	if err != nil {
-// 		return err
-// 	}
+	insertTweetSql := "INSERT INTO tweets (uid, user_uid, body, image, created_at) VALUES (?, ?, ?, ?, ?)"
 
-// 	return nil
-// }
+	_, err := tr.db.Exec(insertTweetSql, tweet.UID, tweet.UserUID, tweet.Body, tweet.Image, tweet.CreatedAt)
+	if err != nil {
+		log.Error("failed to insert tweet" + err.Error())
+		return nil, err
+	}
 
-// // photo
-// type photoRepository struct {
-// 	DB *gorm.DB
-// }
+	return &tweet, nil
+}
 
-// func NewPhotoRepory(db *gorm.DB) repository.IPhotoRepository {
-// 	return &photoRepository{
-// 		DB: db,
-// 	}
-// }
+func (tr *tweetRepository) UpdateTweet(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error) {
+
+	updateTweetSql := "UPDATE tweets SET body = ?, image = ? WHERE uid = ?"
+
+	_, err := tr.db.Exec(updateTweetSql, tweet.Body, tweet.Image, tweet.UID)
+	if err != nil {
+		log.Error("failed to update tweet" + err.Error())
+		return nil, err
+	}
+
+	return &tweet, nil
+}
+
+func (tr *tweetRepository) DeleteTweet(ctx context.Context, uid string) error {
+
+	deleteTweetSql := "DELETE FROM tweets WHERE uid = ?"
+
+	_, err := tr.db.Exec(deleteTweetSql, uid)
+	if err != nil {
+		log.Error("failed to delete tweet" + err.Error())
+		return err
+	}
+
+	return nil
+}

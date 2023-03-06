@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/99designs/gqlgen v0.17.24
 	github.com/go-sql-driver/mysql v1.7.0
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo/v4 v4.10.0

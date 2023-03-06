@@ -3,11 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"log"
-	"time"
 
-	"github.com/tomoropy/fishing-with-api/auth/token"
-	"github.com/tomoropy/fishing-with-api/config"
 	"github.com/tomoropy/fishing-with-api/domain/entity"
 	"github.com/tomoropy/fishing-with-api/domain/repository"
 	"github.com/tomoropy/fishing-with-api/util"
@@ -17,15 +13,27 @@ import (
 // interface
 
 type QueryService interface {
-	Login(ctx context.Context, email string, password string) (*entity.User, string, error)
+	// user
+	Login(ctx context.Context, email string, password string) (*entity.User, error)
 	ListUsers(ctx context.Context) ([]entity.User, error)
 	GetUser(ctx context.Context, id string) (*entity.User, error)
+
+	// tweet
+	ListTweets(ctx context.Context) ([]entity.Tweet, error)
+	GetTweet(ctx context.Context, id string) (*entity.Tweet, error)
+	GetTweetsByUserUID(ctx context.Context, userID string) ([]entity.Tweet, error)
 }
 
 type MutationService interface {
+	// user
 	CreateUser(ctx context.Context, user *entity.User) (*entity.User, error)
 	UpdateUser(ctx context.Context, user *entity.User) (*entity.User, error)
-	DeleteUser(ctx context.Context, id string) error
+	DeleteUser(ctx context.Context, uid string) error
+
+	// tweet
+	CreateTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error)
+	UpdateTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error)
+	DeleteTweet(ctx context.Context, uid string) error
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -33,50 +41,36 @@ type MutationService interface {
 
 type queyrService struct {
 	ur repository.UserRepository
+	tr repository.TweetRepository
 }
 
 // constructor
 func NewQueryService(
 	ur repository.UserRepository,
+	tr repository.TweetRepository,
 ) QueryService {
 
 	return &queyrService{
 		ur: ur,
+		tr: tr,
 	}
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // QueryServiceの実装
 
-func (qs *queyrService) Login(ctx context.Context, email string, password string) (*entity.User, string, error) {
+func (qs *queyrService) Login(ctx context.Context, email string, password string) (*entity.User, error) {
 	user, err := qs.ur.SelectUserByEmail(ctx, email)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	// passwrod check
 	if err = util.CheckPassword(password, user.HashedPassword); err != nil {
-		return nil, "", errors.New("password is not correct")
+		return nil, errors.New("password is not correct")
 	}
 
-	// load config
-	config, err := config.Load()
-	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
-	}
-
-	tokenMaker, err := token.NewJWTMaker(config.Auth.SecretKey)
-	if err != nil {
-		return nil, "", err
-	}
-
-	// create token
-	token, _, err := tokenMaker.CreateTocken(email, 24*time.Hour)
-	if err != nil {
-		return nil, "", err
-	}
-
-	return user, token, nil
+	return user, nil
 }
 
 func (qs *queyrService) ListUsers(ctx context.Context) ([]entity.User, error) {
@@ -97,20 +91,47 @@ func (qs *queyrService) GetUser(ctx context.Context, id string) (*entity.User, e
 	return user, nil
 }
 
+func (qs *queyrService) ListTweets(ctx context.Context) ([]entity.Tweet, error) {
+	tweets, err := qs.tr.SelectAllTweet(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return tweets, nil
+}
+
+func (qs *queyrService) GetTweet(ctx context.Context, id string) (*entity.Tweet, error) {
+	tweet, err := qs.tr.SelectTweetByUID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return tweet, nil
+}
+
+func (qs *queyrService) GetTweetsByUserUID(ctx context.Context, userID string) ([]entity.Tweet, error) {
+	tweets, err := qs.tr.SelectTweetByUserUID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return tweets, nil
+}
+
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // mutation service
 
 type mutationService struct {
 	ur repository.UserRepository
+	tr repository.TweetRepository
 }
 
 // constructor
 func NewMutationService(
 	ur repository.UserRepository,
+	tr repository.TweetRepository,
 ) MutationService {
 
 	return &mutationService{
 		ur: ur,
+		tr: tr,
 	}
 }
 
@@ -151,8 +172,35 @@ func (ms *mutationService) UpdateUser(ctx context.Context, user *entity.User) (*
 	return updatedUser, nil
 }
 
-func (ms *mutationService) DeleteUser(ctx context.Context, id string) error {
-	err := ms.ur.DeleteUser(ctx, id)
+func (ms *mutationService) DeleteUser(ctx context.Context, uid string) error {
+	err := ms.ur.DeleteUserTX(ctx, uid)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ms *mutationService) CreateTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error) {
+	createdTweet, err := ms.tr.InsertTweet(ctx, *tweet)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdTweet, nil
+}
+
+func (ms *mutationService) UpdateTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error) {
+	updatedTweet, err := ms.tr.UpdateTweet(ctx, *tweet)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedTweet, nil
+}
+
+func (ms *mutationService) DeleteTweet(ctx context.Context, uid string) error {
+	err := ms.tr.DeleteTweet(ctx, uid)
 	if err != nil {
 		return err
 	}

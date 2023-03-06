@@ -12,13 +12,14 @@ type UserRepository interface {
 	SelectUserByEmail(ctx context.Context, email string) (*entity.User, error)
 	InsertUser(ctx context.Context, user entity.User) (*entity.User, error)
 	UpdateUser(ctx context.Context, user entity.User) (*entity.User, error)
-	DeleteUser(ctx context.Context, uid string) error
+	DeleteUserTX(ctx context.Context, uid string) error
 }
 
-// type InvRepository interface {
-// 	SelectAllInv(ctx context.Context) ([]entity.Invitation, error)
-// 	SelectInvByUID(ctx context.Context, uid string) (*entity.Invitation, error)
-// 	InsertInv(ctx context.Context, inv entity.Invitation) (*entity.Invitation, error)
-// 	UpdateInv(ctx context.Context, inv entity.Invitation) (*entity.Invitation, error)
-// 	DeleteInv(ctx context.Context, uid string) error
-// }
+type TweetRepository interface {
+	SelectAllTweet(ctx context.Context) ([]entity.Tweet, error)
+	SelectTweetByUID(ctx context.Context, uid string) (*entity.Tweet, error)
+	SelectTweetByUserUID(ctx context.Context, userID string) ([]entity.Tweet, error)
+	InsertTweet(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error)
+	UpdateTweet(ctx context.Context, tweet entity.Tweet) (*entity.Tweet, error)
+	DeleteTweet(ctx context.Context, uid string) error
+}
