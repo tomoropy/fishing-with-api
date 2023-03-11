@@ -1,2 +1,4 @@
 /data
 /tmp
+go.mod
+go.sum
