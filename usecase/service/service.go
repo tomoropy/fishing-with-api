@@ -26,13 +26,11 @@ type QueryService interface {
 
 type MutationService interface {
 	// user
-	CreateUser(ctx context.Context, user *entity.User) (*entity.User, error)
-	UpdateUser(ctx context.Context, user *entity.User) (*entity.User, error)
+	SaveUser(ctx context.Context, user *entity.User) (*entity.User, error)
 	DeleteUser(ctx context.Context, uid string) error
 
 	// tweet
-	CreateTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error)
-	UpdateTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error)
+	SaveTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error)
 	DeleteTweet(ctx context.Context, uid string) error
 }
 
@@ -60,7 +58,7 @@ func NewQueryService(
 // QueryServiceの実装
 
 func (qs *queyrService) Login(ctx context.Context, email string, password string) (*entity.User, error) {
-	user, err := qs.ur.SelectUserByEmail(ctx, email)
+	user, err := qs.ur.SelectByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +72,7 @@ func (qs *queyrService) Login(ctx context.Context, email string, password string
 }
 
 func (qs *queyrService) ListUsers(ctx context.Context) ([]entity.User, error) {
-	users, err := qs.ur.SelectAllUser(ctx)
+	users, err := qs.ur.SelectAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +81,7 @@ func (qs *queyrService) ListUsers(ctx context.Context) ([]entity.User, error) {
 }
 
 func (qs *queyrService) GetUser(ctx context.Context, id string) (*entity.User, error) {
-	user, err := qs.ur.SelectUserByUID(ctx, id)
+	user, err := qs.ur.SelectByUID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +90,7 @@ func (qs *queyrService) GetUser(ctx context.Context, id string) (*entity.User, e
 }
 
 func (qs *queyrService) ListTweets(ctx context.Context) ([]entity.Tweet, error) {
-	tweets, err := qs.tr.SelectAllTweet(ctx)
+	tweets, err := qs.tr.SelectAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +98,7 @@ func (qs *queyrService) ListTweets(ctx context.Context) ([]entity.Tweet, error) 
 }
 
 func (qs *queyrService) GetTweet(ctx context.Context, id string) (*entity.Tweet, error) {
-	tweet, err := qs.tr.SelectTweetByUID(ctx, id)
+	tweet, err := qs.tr.SelectByUID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +106,7 @@ func (qs *queyrService) GetTweet(ctx context.Context, id string) (*entity.Tweet,
 }
 
 func (qs *queyrService) GetTweetsByUserUID(ctx context.Context, userID string) ([]entity.Tweet, error) {
-	tweets, err := qs.tr.SelectTweetByUserUID(ctx, userID)
+	tweets, err := qs.tr.SelectByUserUID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +136,7 @@ func NewMutationService(
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // MutationServiceの実装
 
-func (ms *mutationService) CreateUser(ctx context.Context, user *entity.User) (*entity.User, error) {
+func (ms *mutationService) SaveUser(ctx context.Context, user *entity.User) (*entity.User, error) {
 	// password hash
 	hashedPassword, err := util.HashPassword(user.HashedPassword)
 	if err != nil {
@@ -146,34 +144,32 @@ func (ms *mutationService) CreateUser(ctx context.Context, user *entity.User) (*
 	}
 	user.HashedPassword = hashedPassword
 
-	// create user
-	createdUser, err := ms.ur.InsertUser(ctx, *user)
+	selectUser, _ := ms.ur.SelectByUID(ctx, user.UID)
+
+	if selectUser == nil {
+		// create user
+		if _, err := ms.ur.Insert(ctx, *user); err != nil {
+			return nil, err
+		}
+
+	} else {
+		// update user
+		if _, err := ms.ur.Update(ctx, *user); err != nil {
+			return nil, err
+		}
+	}
+
+	user, err = ms.ur.SelectByUID(ctx, user.UID)
 	if err != nil {
 		return nil, err
 	}
 
-	return createdUser, nil
-}
+	return user, nil
 
-func (ms *mutationService) UpdateUser(ctx context.Context, user *entity.User) (*entity.User, error) {
-	// password hash
-	hashedPassword, err := util.HashPassword(user.HashedPassword)
-	if err != nil {
-		return nil, err
-	}
-	user.HashedPassword = hashedPassword
-
-	// update user
-	updatedUser, err := ms.ur.UpdateUser(ctx, *user)
-	if err != nil {
-		return nil, err
-	}
-
-	return updatedUser, nil
 }
 
 func (ms *mutationService) DeleteUser(ctx context.Context, uid string) error {
-	err := ms.ur.DeleteUserTX(ctx, uid)
+	err := ms.ur.DeleteTX(ctx, uid)
 	if err != nil {
 		return err
 	}
@@ -181,26 +177,33 @@ func (ms *mutationService) DeleteUser(ctx context.Context, uid string) error {
 	return nil
 }
 
-func (ms *mutationService) CreateTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error) {
-	createdTweet, err := ms.tr.InsertTweet(ctx, *tweet)
+func (ms *mutationService) SaveTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error) {
+	selectTweet, _ := ms.tr.SelectByUID(ctx, tweet.UID)
+
+	if selectTweet == nil {
+		// create tweet
+		if _, err := ms.tr.Insert(ctx, *tweet); err != nil {
+			return nil, err
+		}
+
+	} else {
+		// update tweet
+		if _, err := ms.tr.Update(ctx, *tweet); err != nil {
+			return nil, err
+		}
+	}
+
+	tweet, err := ms.tr.SelectByUID(ctx, tweet.UID)
 	if err != nil {
 		return nil, err
 	}
 
-	return createdTweet, nil
-}
+	return tweet, nil
 
-func (ms *mutationService) UpdateTweet(ctx context.Context, tweet *entity.Tweet) (*entity.Tweet, error) {
-	updatedTweet, err := ms.tr.UpdateTweet(ctx, *tweet)
-	if err != nil {
-		return nil, err
-	}
-
-	return updatedTweet, nil
 }
 
 func (ms *mutationService) DeleteTweet(ctx context.Context, uid string) error {
-	err := ms.tr.DeleteTweet(ctx, uid)
+	err := ms.tr.Delete(ctx, uid)
 	if err != nil {
 		return err
 	}
